@@ -5,9 +5,10 @@ export const SuspenseLab = () => {
         <>
             <h2>Suspense - Artists List</h2>
             <Artists />
-            <br />
-            <br />
+            <br /><br />
             <NestedSuspense />
+            <br /><br />
+            <StaleContent />
         </>
     );
 };
@@ -46,11 +47,80 @@ async function getBio() {
     and Ringo Starr.`;
 }
 
+async function getSearchResults(query: string) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    const all_albums = [{
+        id: 13,
+        title: 'Let It Be',
+        year: 1970
+    }, {
+        id: 12,
+        title: 'Abbey Road',
+        year: 1969
+    }, {
+        id: 11,
+        title: 'Yellow Submarine',
+        year: 1969
+    }, {
+        id: 10,
+        title: 'The Beatles',
+        year: 1968
+    }, {
+        id: 9,
+        title: 'Magical Mystery Tour',
+        year: 1967
+    }, {
+        id: 8,
+        title: 'Sgt. Pepper\'s Lonely Hearts Club Band',
+        year: 1967
+    }, {
+        id: 7,
+        title: 'Revolver',
+        year: 1966
+    }, {
+        id: 6,
+        title: 'Rubber Soul',
+        year: 1965
+    }, {
+        id: 5,
+        title: 'Help!',
+        year: 1965
+    }, {
+        id: 4,
+        title: 'Beatles For Sale',
+        year: 1964
+    }, {
+        id: 3,
+        title: 'A Hard Day\'s Night',
+        year: 1964
+    }, {
+        id: 2,
+        title: 'With The Beatles',
+        year: 1963
+    }, {
+        id: 1,
+        title: 'Please Please Me',
+        year: 1963
+    }];
+
+    const lower_query = query.trim().toLowerCase();
+    return all_albums.filter(album => {
+        const lower_title = album.title.toLowerCase();
+        return (
+            lower_title.startsWith(lower_query) ||
+            lower_title.indexOf(' ' + lower_query) !== -1
+        );
+    });
+}
+
 const getData = async (url: string) => {
     if (url === '/the-beatles/albums') {
         return await getAlbums();
     } else if (url === '/the-beatles/bio') {
         return await getBio();
+    } else if (url.startsWith('/search?q=')) {
+        return await getSearchResults(url.slice('/search?q='.length));
     } else {
         throw new Error('Not implemented');
     }
@@ -189,4 +259,42 @@ const glimmer_line_style = {
     margin: 10,
     borderRadius: 4,
     background: '#f0f0f0',
+};
+
+const SearchResults = ({ query }: { query: string; }) => {
+    if (query === '') {
+        return null;
+    }
+
+    const albums: { id: number, title: string, year: number; }[] = use(fetchData(`/search?q=${query}`));
+
+    if (albums.length === 0) {
+        return <p>No matches for <i>"{query}"</i></p>;
+    }
+
+    return (
+        <ul>
+            {albums.map(album => (
+                <li key={album.id}>
+                    {album.title} - {album.year}
+                </li>
+            ))}
+        </ul>
+    );
+};
+
+
+const StaleContent = () => {
+    const [query, setQuery] = useState('');
+    return (
+        <>
+            <label>
+                Search albums: {" "} 
+                <input value={query} onChange={e => setQuery(e.target.value)} />
+            </label>
+            <Suspense fallback={<h3>Loading...</h3>}>
+                <SearchResults query={query} />
+            </Suspense>
+        </>
+    );
 };
