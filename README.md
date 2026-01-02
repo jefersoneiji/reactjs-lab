@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# reactjs-lab 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A personal laboratory to experiment, test, and deepen my understanding of **React.js concepts** in isolation.  
+This repository is focused on learning by doing — small, scoped examples instead of full applications.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React.js**
+- **Vite** – lightning-fast **build tool and development server**
+- **pnpm** – fast, disk-efficient package manager
+- **TypeScript** (if applicable — remove if not used)
 
-## React Compiler
+## Project Structure
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+The project is organized by **React concepts**, making it easy to explore and evolve each topic independently.
 
-## Expanding the ESLint configuration
+```
+reactjs-lab/
+├─ src/
+│ ├─ components/ # Experiments and patterns related to React components
+│ ├─ hooks/ # Custom hooks and hook-related concepts
+│ └─ ...
+├─ package.json
+├─ pnpm-lock.yaml
+└─ vite.config.ts
+```
+Each folder inside `src` represents a **specific React concept**, keeping examples focused, readable, and easy to extend.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Install dependencies
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Start the development server
+```bash
+pnpm dev
 ```
+The app will be available at:
+```bash
+http://localhost:5173
+```
+
+## Goals of This Repository
+
+- Explore React fundamentals and advanced patterns
+- Test ideas without production constraints
+- Build intuition around hooks, components, and state management
+- Serve as a personal reference and knowledge base
