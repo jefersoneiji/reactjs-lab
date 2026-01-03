@@ -1,4 +1,4 @@
-import { Suspense, use, useState, type ReactNode } from "react";
+import { startTransition, Suspense, use, useState, type ReactNode } from "react";
 
 export const SuspenseLab = () => {
     return (
@@ -9,6 +9,8 @@ export const SuspenseLab = () => {
             <NestedSuspense />
             <br /><br />
             <StaleContent />
+            <br /><br />
+            <SuspenseWithTransition />
         </>
     );
 };
@@ -289,12 +291,67 @@ const StaleContent = () => {
     return (
         <>
             <label>
-                Search albums: {" "} 
+                Search albums: {" "}
                 <input value={query} onChange={e => setQuery(e.target.value)} />
             </label>
             <Suspense fallback={<h3>Loading...</h3>}>
                 <SearchResults query={query} />
             </Suspense>
         </>
+    );
+};
+
+const Layout = ({ children }: { children: ReactNode; }) => {
+    return (
+        <div style={{ border: '1px solid black' }}>
+            <section style={{
+                background: '#222',
+                padding: '10px',
+                textAlign: 'center',
+                color: 'white'
+            }}>
+                Music Browser
+            </section>
+            <main>
+                {children}
+            </main>
+        </div>
+    );
+};
+
+const IndexPage = ({ navigate }: { navigate: (url: string) => void; }) => {
+    return (
+        <button onClick={() => navigate('/the-beatles')}>
+            Open The Beatles artist page (with transition)
+        </button>
+    );
+};
+
+const Router = () => {
+    const [page, setPage] = useState('/');
+
+    function navigate(url: string) {
+        startTransition(() => {
+            setPage(url);
+        });
+    }
+
+    let content;
+    if (page === "/") {
+        content = (<IndexPage navigate={navigate} />);
+    } else if (page === '/the-beatles') {
+        content = (<NestedArtistPage artist={{ id: 'the-beatles', name: 'The Beatles' }} />);
+    }
+
+    return (
+        <Layout>{content}</Layout>
+    );
+};
+
+const SuspenseWithTransition = () => {
+    return (
+        <Suspense fallback={<BigSpinner />}>
+            <Router />
+        </Suspense>
     );
 };
