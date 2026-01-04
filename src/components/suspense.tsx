@@ -1,4 +1,4 @@
-import { startTransition, Suspense, use, useState, type ReactNode } from "react";
+import { startTransition, Suspense, use, useState, useTransition, type ReactNode } from "react";
 
 export const SuspenseLab = () => {
     return (
@@ -11,6 +11,8 @@ export const SuspenseLab = () => {
             <StaleContent />
             <br /><br />
             <SuspenseWithTransition />
+            <br /><br />
+            <SuspenseWithIndicator />
         </>
     );
 };
@@ -50,7 +52,7 @@ async function getBio() {
 }
 
 async function getSearchResults(query: string) {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     const all_albums = [{
         id: 13,
@@ -340,7 +342,7 @@ const Router = () => {
     if (page === "/") {
         content = (<IndexPage navigate={navigate} />);
     } else if (page === '/the-beatles') {
-        content = (<NestedArtistPage artist={{ id: 'the-beatles', name: 'The Beatles' }} />);
+        content = (<ArtistPageForTransition artist={{ id: 'the-beatles', name: 'The Beatles' }} />);
     }
 
     return (
@@ -352,6 +354,71 @@ const SuspenseWithTransition = () => {
     return (
         <Suspense fallback={<BigSpinner />}>
             <Router />
+        </Suspense>
+    );
+};
+
+const ArtistPageForTransition = ({ artist }: { artist: { name: string, id: string; }; }) => {
+    return (
+        <>
+            <h3>{artist.name}</h3>
+            <Biography artistId={artist.id} />
+            <Suspense fallback={<AlbumsGlimmer />}>
+                <Panel>
+                    <Albums artistId={artist.id} />
+                </Panel>
+            </Suspense>
+        </>
+    );
+};
+
+const LayoutWithIndicator = ({ children, isPending }: { children: ReactNode; isPending: boolean; }) => {
+    return (
+        <div style={{ border: '1px solid black' }}>
+            <section style={{
+                background: '#222',
+                padding: '10px',
+                textAlign: 'center',
+                color: 'white',
+                opacity: isPending ? .7 : 1
+            }}>
+                Music Browser (with pending indicator)
+            </section>
+            <main>
+                {children}
+            </main>
+        </div>
+    );
+};
+
+const RouterWithIndicator = () => {
+    const [page, setPage] = useState('/');
+    const [isPending, startTransition] = useTransition();
+
+    function navigate(url: string) {
+        startTransition(() => {
+            setPage(url);
+        });
+    }
+
+    let content;
+    if (page === "/") {
+        content = (<IndexPage navigate={navigate} />);
+    } else if (page === '/the-beatles') {
+        content = (<ArtistPageForTransition artist={{ id: 'the-beatles', name: 'The Beatles' }} />);
+    }
+
+    return (
+        <LayoutWithIndicator isPending={isPending}>
+            {content}
+        </LayoutWithIndicator>
+    );
+};
+
+const SuspenseWithIndicator = () => {
+    return (
+        <Suspense fallback={<BigSpinner />}>
+            <RouterWithIndicator />
         </Suspense>
     );
 };
