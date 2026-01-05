@@ -13,6 +13,8 @@ export const SuspenseLab = () => {
             <SuspenseWithTransition />
             <br /><br />
             <SuspenseWithIndicator />
+            <br /><br />
+            <UpdateSuspense />
         </>
     );
 };
@@ -125,6 +127,8 @@ const getData = async (url: string) => {
         return await getBio();
     } else if (url.startsWith('/search?q=')) {
         return await getSearchResults(url.slice('/search?q='.length));
+    } else if (url.startsWith('/the-who?album=')) {
+        return await getTheWhoAlbums(url.slice('/the-who?album='.length));
     } else {
         throw new Error('Not implemented');
     }
@@ -420,5 +424,129 @@ const SuspenseWithIndicator = () => {
         <Suspense fallback={<BigSpinner />}>
             <RouterWithIndicator />
         </Suspense>
+    );
+};
+
+const getTheWhoAlbums = async (index: string = "0") => {
+    console.log('Get The Who Album called!');
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const albums = [
+        {
+            "id": 1,
+            "title": "My Generation",
+            "year": 1965,
+            "description": "The Who’s debut album, defining the mod movement with raw energy, youthful rebellion, and the iconic title track."
+        },
+        {
+            "id": 2,
+            "title": "A Quick One",
+            "year": 1966,
+            "description": "An experimental follow-up featuring shorter songs and the mini-rock opera 'A Quick One, While He’s Away.'"
+        },
+        {
+            "id": 3,
+            "title": "The Who Sell Out",
+            "year": 1967,
+            "description": "A concept album styled as a pirate radio broadcast, blending pop art, satire, and jingles."
+        },
+        {
+            "id": 4,
+            "title": "Tommy",
+            "year": 1969,
+            "description": "A landmark rock opera telling the story of a deaf, dumb, and blind boy, cementing The Who’s artistic ambition."
+        },
+        {
+            "id": 5,
+            "title": "Live at Leeds",
+            "year": 1970,
+            "description": "A legendary live album capturing The Who at peak intensity, often cited as one of the greatest live records ever."
+        },
+        {
+            "id": 6,
+            "title": "Who's Next",
+            "year": 1971,
+            "description": "A powerful studio album blending hard rock and synthesizers, featuring classics like 'Baba O’Riley.'"
+        },
+        {
+            "id": 7,
+            "title": "Quadrophenia",
+            "year": 1973,
+            "description": "A complex rock opera exploring mod culture, identity, and alienation through the story of Jimmy."
+        },
+        {
+            "id": 8,
+            "title": "The Who by Numbers",
+            "year": 1975,
+            "description": "A darker, more introspective album reflecting Pete Townshend’s personal struggles and anxieties."
+        },
+        {
+            "id": 9,
+            "title": "Who Are You",
+            "year": 1978,
+            "description": "The band’s last album with drummer Keith Moon, mixing mature songwriting with renewed rock energy."
+        },
+        {
+            "id": 10,
+            "title": "Face Dances",
+            "year": 1981,
+            "description": "The first album after Keith Moon’s death, featuring a more polished, early-80s sound."
+        },
+        {
+            "id": 11,
+            "title": "It's Hard",
+            "year": 1982,
+            "description": "A socially conscious album dealing with politics, aging, and change, released before the band’s initial breakup."
+        },
+        {
+            "id": 12,
+            "title": "Endless Wire",
+            "year": 2006,
+            "description": "A comeback album after a long hiatus, including the mini-opera 'Wire & Glass.'"
+        },
+        {
+            "id": 13,
+            "title": "Who",
+            "year": 2019,
+            "description": "A late-career studio album combining classic Who themes with modern production and orchestration."
+        }
+    ];
+
+    return albums.at(parseInt(index));
+};
+
+const UpdateSuspense = () => {
+    const [index, setIndex] = useState(0);
+
+
+    const next_album = () => startTransition(() => {
+        index < 12 ? setIndex(p => p + 1) : index;
+    });
+    const previous_album = () => startTransition(() => {
+        index > 0 ? setIndex(p => p - 1) : index;
+    });
+
+    return (
+        <>
+            <h3>Get to know more an album from: The Who <br />(And Reset Suspense Boundary)</h3>
+            <h4>Current Album: {index}</h4>
+            <Suspense fallback={<BigSpinner />} key={index}>
+                <AlbumDetail index={index} />
+            </Suspense>
+            <button onClick={previous_album}>Previous album</button>
+            {" "}
+            <button onClick={next_album}>Next album</button>
+        </>
+    );
+};
+
+const AlbumDetail = ({ index }: { index: number; }) => {
+    const album: { title: string, year: number, description: string; } = use(fetchData(`/the-who?album=${index}`));
+    return (
+        <>
+            <p><b>Title:</b> {album.title}</p>
+            <p><b>Year:</b> {album.year}</p>
+            <p><b>Description:</b> {album.description}</p>
+        </>
     );
 };
