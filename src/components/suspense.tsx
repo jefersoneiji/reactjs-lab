@@ -1,4 +1,3 @@
-import React from "react";
 import { startTransition, Suspense, use, useState, useTransition, type ReactNode } from "react";
 
 export const SuspenseLab = () => {
@@ -591,6 +590,7 @@ const ServerComponentError = () => {
     const display_component = () => setShow(!show);
     return (
         <>
+        <h3>Display loading for server component errors</h3>
             <Suspense fallback={<BigSpinner />}>
                 {show && <ServerLikeComponent />}
             </Suspense>
