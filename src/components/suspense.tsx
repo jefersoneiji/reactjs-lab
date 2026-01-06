@@ -1,3 +1,4 @@
+import React from "react";
 import { startTransition, Suspense, use, useState, useTransition, type ReactNode } from "react";
 
 export const SuspenseLab = () => {
@@ -15,6 +16,8 @@ export const SuspenseLab = () => {
             <SuspenseWithIndicator />
             <br /><br />
             <UpdateSuspense />
+            <br /><br />
+            <ServerComponentError />
         </>
     );
 };
@@ -547,6 +550,51 @@ const AlbumDetail = ({ index }: { index: number; }) => {
             <p><b>Title:</b> {album.title}</p>
             <p><b>Year:</b> {album.year}</p>
             <p><b>Description:</b> {album.description}</p>
+        </>
+    );
+};
+
+function createServerResource<T>(fn: () => Promise<T>) {
+    let status = "pending";
+    let result: T;
+    let promise = fn().then(
+        r => {
+            status = "success";
+            result = r;
+        },
+        e => {
+            status = "error";
+            throw e;
+        }
+    );
+
+    return {
+        read() {
+            if (status === "pending") throw promise;
+            if (status === "error") throw new Error("Server error");
+            return result;
+        }
+    };
+}
+
+const resource = createServerResource(
+    () => new Promise(res => setTimeout(() => res("Hello from server"), 3000))
+);
+
+const ServerLikeComponent = () => {
+    return <p>{resource.read() as string}</p>;
+};
+
+const ServerComponentError = () => {
+    const [show, setShow] = useState(false);
+    
+    const display_component = () => setShow(!show);
+    return (
+        <>
+            <Suspense fallback={<BigSpinner />}>
+                {show && <ServerLikeComponent />}
+            </Suspense>
+            <button onClick={display_component}>Load server component</button>
         </>
     );
 };
