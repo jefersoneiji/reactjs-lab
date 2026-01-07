@@ -9,6 +9,7 @@ export const UseEffectLab = () => {
             <SyncToExternalSource />
             <SyncToExternalSourceCustomHook />
             <ControllingNonReactWidget />
+            <FetchData />
         </>
     );
 };
@@ -178,6 +179,46 @@ const ControllingNonReactWidget = () => {
             <button onClick={() => setZoomLevel(p => p - 1)}>-</button>
             <hr />
             <Map zoomLevel={zoomLevel} />
+        </>
+    );
+};
+
+async function fetch_bio(person: string): Promise<string> {
+    const delay = person === 'Bob' ? 2000 : 200;
+    return new Promise(resolve => {
+        setTimeout(() => { resolve('This is ' + person + 's bio.'); }, delay);
+    });
+}
+
+const FetchData = () => {
+    const [person, setPerson] = useState('Alice');
+    const [bio, setBio] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function start_fetching() {
+            setBio(null);
+            const result = await fetch_bio(person);
+            if (!ignore) {
+                setBio(result);
+            }
+        }
+        let ignore = false;
+        start_fetching();
+        return () => {
+            ignore = true;
+        };
+    }, [person]);
+
+    return (
+        <>
+            <h3>Fetching Data</h3>
+            <select value={person} onChange={e => { setPerson(e.target.value); }}>
+                <option value="Alice">Alice</option>
+                <option value="Bob">Bob</option>
+                <option value="Taylor">Taylor</option>
+            </select>
+            <hr />
+            <p><i>{bio ?? 'Loading...'}</i></p>
         </>
     );
 };
