@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import 'leaflet/dist/leaflet.css';
+import * as L from 'leaflet';
 
 export const UseEffectLab = () => {
     return (
@@ -6,6 +8,7 @@ export const UseEffectLab = () => {
             <h2>UseEffect Lab</h2>
             <SyncToExternalSource />
             <SyncToExternalSourceCustomHook />
+            <ControllingNonReactWidget />
         </>
     );
 };
@@ -113,6 +116,68 @@ const SyncToExternalSource = () => {
             </button>
             {show && <hr />}
             {show && <ChatRoom room_id={room_id} />}
+        </>
+    );
+};
+
+class MapWidget {
+    map: L.Map;
+
+    constructor(domNode: HTMLElement) {
+        this.map = L.map(domNode, {
+            zoomControl: false,
+            doubleClickZoom: false,
+            boxZoom: false,
+            keyboard: false,
+            scrollWheelZoom: false,
+            touchZoom: false,
+            zoomSnap: 0.1
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: "© OpenStreetMap"
+        }).addTo(this.map);
+
+        this.map.setView([0, 0], 0);
+    }
+
+    setZoom(level: number) {
+        this.map.setZoom(level);
+    }
+}
+
+const Map = ({ zoomLevel }: { zoomLevel: number; }) => {
+    const container_ref = useRef(null);
+    const map_ref = useRef<MapWidget | null>(null);
+
+    useEffect(() => {
+        if (map_ref.current === null && container_ref.current !== null) {
+            map_ref.current = new MapWidget(container_ref.current);
+        }
+
+        const map = map_ref.current;
+        if (map) {
+            map.setZoom(zoomLevel);
+        }
+    }, [zoomLevel]);
+
+    return (
+        <div style={{ width: 200, height: 200 }} ref={container_ref} />
+    );
+};
+
+const ControllingNonReactWidget = () => {
+    const [zoomLevel, setZoomLevel] = useState(0);
+
+    return (
+        <>
+            <h3>Control a non React widget</h3>
+            <h4>Zoom Level: {zoomLevel}x</h4>
+            <button onClick={() => setZoomLevel(p => p + 1)}>+</button>
+            <button onClick={() => setZoomLevel(p => p - 1)}>-</button>
+            <hr />
+            <Map zoomLevel={zoomLevel} />
         </>
     );
 };
