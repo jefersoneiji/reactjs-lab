@@ -21,7 +21,7 @@ export const SuspenseLab = () => {
     );
 };
 
-let cache = new Map();
+const cache = new Map();
 
 const getAlbums = async () => {
     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -556,7 +556,7 @@ const AlbumDetail = ({ index }: { index: number; }) => {
 function createServerResource<T>(fn: () => Promise<T>) {
     let status = "pending";
     let result: T;
-    let promise = fn().then(
+    const promise = fn().then(
         r => {
             status = "success";
             result = r;
@@ -586,11 +586,11 @@ const ServerLikeComponent = () => {
 
 const ServerComponentError = () => {
     const [show, setShow] = useState(false);
-    
+
     const display_component = () => setShow(!show);
     return (
         <>
-        <h3>Display loading for server component errors</h3>
+            <h3>Display loading for server component errors</h3>
             <Suspense fallback={<BigSpinner />}>
                 {show && <ServerLikeComponent />}
             </Suspense>
