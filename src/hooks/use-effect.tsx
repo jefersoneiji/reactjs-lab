@@ -11,6 +11,7 @@ export const UseEffectLab = () => {
             <ControllingNonReactWidget />
             <FetchData />
             <RemoveDependencyFromArray />
+            <FunctionalUpdate />
         </>
     );
 };
@@ -270,4 +271,18 @@ const RemoveDependencyFromArray = () => {
             {show && <ChatRoomLessDependencies room_id={room_id} />}
         </>
     );
+};
+
+const FunctionalUpdate = () => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        const interval_id = setInterval(() => {
+            setCount(c => c + 1);
+        }, 1000);
+
+        return () => clearInterval(interval_id);
+    }, []);
+
+    return <h3>{count}</h3>;
 };
