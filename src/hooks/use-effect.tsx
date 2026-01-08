@@ -10,6 +10,7 @@ export const UseEffectLab = () => {
             <SyncToExternalSourceCustomHook />
             <ControllingNonReactWidget />
             <FetchData />
+            <RemoveDependencyFromArray />
         </>
     );
 };
@@ -219,6 +220,54 @@ const FetchData = () => {
             </select>
             <hr />
             <p><i>{bio ?? 'Loading...'}</i></p>
+        </>
+    );
+};
+
+const server_url = 'https://localhost:1234';
+
+const ChatRoomLessDependencies = ({ room_id }: { room_id: string; }) => {
+
+    useEffect(() => {
+        const connection = create_connection(server_url, room_id);
+        connection.connect();
+        return () => {
+            connection.disconnect();
+        };
+    }, [room_id]);
+
+    return (
+        <>
+            <label>
+                Server URL: {' '}
+                <input value={server_url} disabled={true} />
+            </label>
+            <h4>Welcome to the {room_id} room!</h4>
+        </>
+    );
+};
+
+const RemoveDependencyFromArray = () => {
+    const [room_id, setRoomId] = useState('general');
+    const [show, setShow] = useState(false);
+
+    return (
+        <>
+            <h3>Removed One Dependency from useEffect Array</h3>
+            <label>
+                Choose the chat room: {" "}
+                <select value={room_id} onChange={e => setRoomId(e.target.value)}>
+                    <option value="general">general</option>
+                    <option value="travel">travel</option>
+                    <option value="music">music</option>
+                </select>
+            </label>
+            {" "}
+            <button onClick={() => setShow(!show)}>
+                {show ? 'Close chat' : 'Open chat'}
+            </button>
+            {show && <hr />}
+            {show && <ChatRoomLessDependencies room_id={room_id} />}
         </>
     );
 };
