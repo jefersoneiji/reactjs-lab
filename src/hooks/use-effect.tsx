@@ -12,6 +12,7 @@ export const UseEffectLab = () => {
             <FetchData />
             <RemoveDependencyFromArray />
             <FunctionalUpdate />
+            <RemoveUnnecessaryFunctionDependencies />
         </>
     );
 };
@@ -285,4 +286,66 @@ const FunctionalUpdate = () => {
     }, []);
 
     return <h3>{count}</h3>;
+};
+
+const create_connection_object_input = ({server_url, room_id}:{server_url: string, room_id: string}) => {
+    return {
+        connect() {
+            console.log('✅ Connecting to ' + room_id + " room at " + server_url);
+        },
+        disconnect() {
+            console.log('❌ Disconnected from ' + room_id + " room at " + server_url);
+        },
+    };
+};
+
+const ChatRoomWithLessFunctionDependencies = ({ room_id }: { room_id: string; }) => {
+const [message, setMessage] = useState('');
+
+    useEffect(() => {
+        function create_options(){
+            return {
+                server_url, 
+                room_id
+            }
+        }
+        const options = create_options()
+        const connection = create_connection_object_input(options);
+        connection.connect();
+        return () => {
+            connection.disconnect();
+        };
+    }, [room_id]);
+
+    return (
+        <>
+            <h4>Welcome to the {room_id} room!</h4>
+            <input value={message} onChange={e => setMessage(e.target.value)} />
+        </>
+    );
+};
+
+const RemoveUnnecessaryFunctionDependencies = () => {
+    const [room_id, setRoomId] = useState('general');
+    const [show, setShow] = useState(false);
+
+    return (
+        <>
+            <h3>Removed Unnecessary Function From Dependency Array</h3>
+            <label>
+                Choose the chat room: {" "}
+                <select value={room_id} onChange={e => setRoomId(e.target.value)}>
+                    <option value="general">general</option>
+                    <option value="travel">travel</option>
+                    <option value="music">music</option>
+                </select>
+            </label>
+            {" "}
+            <button onClick={() => setShow(!show)}>
+                {show ? 'Close chat' : 'Open chat'}
+            </button>
+            {show && <hr />}
+            {show && <ChatRoomWithLessFunctionDependencies room_id={room_id} />}
+        </>
+    );
 };
