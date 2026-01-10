@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import 'leaflet/dist/leaflet.css';
 import * as L from 'leaflet';
 
@@ -13,6 +13,7 @@ export const UseEffectLab = () => {
             <RemoveDependencyFromArray />
             <FunctionalUpdate />
             <RemoveUnnecessaryFunctionDependencies />
+            <LatestPropAndStateFromEffect />
         </>
     );
 };
@@ -288,7 +289,7 @@ const FunctionalUpdate = () => {
     return <h3>{count}</h3>;
 };
 
-const create_connection_object_input = ({server_url, room_id}:{server_url: string, room_id: string}) => {
+const create_connection_object_input = ({ server_url, room_id }: { server_url: string, room_id: string; }) => {
     return {
         connect() {
             console.log('✅ Connecting to ' + room_id + " room at " + server_url);
@@ -300,16 +301,16 @@ const create_connection_object_input = ({server_url, room_id}:{server_url: strin
 };
 
 const ChatRoomWithLessFunctionDependencies = ({ room_id }: { room_id: string; }) => {
-const [message, setMessage] = useState('');
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
-        function create_options(){
+        function create_options() {
             return {
-                server_url, 
+                server_url,
                 room_id
-            }
+            };
         }
-        const options = create_options()
+        const options = create_options();
         const connection = create_connection_object_input(options);
         connection.connect();
         return () => {
@@ -346,6 +347,66 @@ const RemoveUnnecessaryFunctionDependencies = () => {
             </button>
             {show && <hr />}
             {show && <ChatRoomWithLessFunctionDependencies room_id={room_id} />}
+        </>
+    );
+};
+
+const ChatRoomTheme = ({ room_id, theme }: { room_id: string; theme: string; }) => {
+
+    const on_theme = useEffectEvent(() => {
+        console.log('theme is: ', theme);
+    });
+
+    useEffect(() => {
+        const connection = create_connection(server_url, room_id);
+        on_theme();
+        connection.connect();
+        return () => {
+            connection.disconnect();
+        };
+    }, [room_id]);
+
+    return (
+        <>
+            <label>
+                Server URL: {' '}
+                <input value={server_url} disabled={true} />
+            </label>
+            <h4>Welcome to the {room_id} room!</h4>
+        </>
+    );
+};
+
+const LatestPropAndStateFromEffect = () => {
+    const [room_id, setRoomId] = useState('general');
+    const [theme, setTheme] = useState('rock');
+    const [show, setShow] = useState(false);
+
+    return (
+        <>
+            <h3>Reading Latest Prop and State Within An Effect</h3>
+            <label>
+                Choose the chat room: {" "}
+                <select value={room_id} onChange={e => setRoomId(e.target.value)}>
+                    <option value="general">general</option>
+                    <option value="travel">travel</option>
+                    <option value="music">music</option>
+                </select>
+            </label>
+            <label>
+                Choose music theme: {" "}
+                <select value={theme} onChange={e => setTheme(e.target.value)}>
+                    <option value="rock">rock</option>
+                    <option value="pop">pop</option>
+                    <option value="country">country</option>
+                </select>
+            </label>
+            {" "}
+            <button onClick={() => setShow(!show)}>
+                {show ? 'Close chat' : 'Open chat'}
+            </button>
+            {show && <hr />}
+            {show && <ChatRoomTheme room_id={room_id} theme={theme} />}
         </>
     );
 };
