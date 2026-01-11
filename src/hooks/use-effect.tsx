@@ -14,6 +14,7 @@ export const UseEffectLab = () => {
             <FunctionalUpdate />
             <RemoveUnnecessaryFunctionDependencies />
             <LatestPropAndStateFromEffect />
+            <EnvironmentBasedContent />
         </>
     );
 };
@@ -407,6 +408,23 @@ const LatestPropAndStateFromEffect = () => {
             </button>
             {show && <hr />}
             {show && <ChatRoomTheme room_id={room_id} theme={theme} />}
+        </>
+    );
+};
+
+const EnvironmentBasedContent = () => {
+    const [did_mount, setDidMount] = useState(false);
+
+    useEffect(() => {
+        setDidMount(true);
+    }, []);
+
+
+    return (
+        <>
+            <p>Flags when environment is client-side or server side</p>
+            {!did_mount && <p>Is client side? false</p>}
+            {did_mount && <p>Is client side? true</p>}
         </>
     );
 };
