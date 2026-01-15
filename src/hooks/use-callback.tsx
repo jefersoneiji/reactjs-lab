@@ -1,6 +1,6 @@
 import './use-callback.css';
 
-import { memo, useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { createContext, memo, useCallback, useContext, useEffect, useReducer, useRef, useState, type Dispatch, type FormEvent, type ReactNode } from "react";
 
 export const UseCallbackLab = () => {
     return (
@@ -9,6 +9,7 @@ export const UseCallbackLab = () => {
             <PreventComponentReRenders />
             <UpdatingStateFromAMemoizedCallback />
             <PreventAnEffectFromFiringTooOften />
+            <OptimizingACustomHook />
         </>
     );
 };
@@ -219,6 +220,131 @@ const PreventAnEffectFromFiringTooOften = () => {
         <>
             <h3>Preventing An Effect From Firing Too Often</h3>
             <App />
+        </>
+    );
+};
+
+type RouterState = string;
+
+type NavigateAction = {
+    type: 'navigate',
+    url: string;
+};
+
+type BackAction = {
+    type: 'back';
+};
+
+type RouterAction = NavigateAction | BackAction;
+
+type RouterContextValue = {
+    state: RouterState,
+    dispatch: Dispatch<RouterAction>;
+};
+
+const RouterStateContext = createContext<RouterContextValue | null>(null);
+
+function router_reducer(state: RouterState, action: RouterAction): RouterState {
+    switch (action.type) {
+        case "navigate":
+            return action.url;
+        case "back":
+            return "/";
+        default:
+            return state;
+    }
+}
+
+function RouterStateProvider({ children }: { children: ReactNode; }) {
+    const [state, dispatch] = useReducer(router_reducer, '/');
+
+    return (
+        <RouterStateContext.Provider value={{ state, dispatch }}>
+            {children}
+        </RouterStateContext.Provider>
+    );
+}
+
+type Router = {
+    navigate: (url: string) => void;
+    goBack: () => void;
+};
+
+function useRouter(): Router {
+    const context = useContext(RouterStateContext);
+
+    if (!context) {
+        throw new Error('useRouter must be used within RouterStateProvider');
+    }
+
+    const { dispatch } = context;
+
+    const navigate = useCallback((url: string) => {
+        dispatch({ type: 'navigate', url });
+    }, [dispatch]);
+
+    const goBack = useCallback(() => {
+        dispatch({ type: 'back' });
+    }, [dispatch]);
+
+    return {
+        navigate,
+        goBack,
+    };
+}
+
+const Home = () => {
+    const { navigate } = useRouter();
+
+    return (
+        <div>
+            <h1>Home</h1>
+
+            <button onClick={() => navigate("/profile")}>
+                Go to profile
+            </button>
+        </div>
+    );
+};
+
+function Profile() {
+    const { goBack } = useRouter();
+
+    return (
+        <div>
+            <h1>Profile</h1>
+
+            <button onClick={goBack}>
+                Back
+            </button>
+        </div>
+    );
+}
+
+const RouterView = () => {
+    const context = useContext(RouterStateContext);
+
+    if (!context) {
+        throw new Error("Router View must be used within RouterStateProvider");
+    }
+
+    const { state: route } = context;
+
+    switch (route) {
+        case "/profile":
+            return <Profile />;
+        default:
+            return <Home />;
+    }
+};
+
+const OptimizingACustomHook = () => {
+    return (
+        <>
+            <h3>Optimizing a Custom Hook</h3>
+            <RouterStateProvider>
+                <RouterView />
+            </RouterStateProvider>
         </>
     );
 };
