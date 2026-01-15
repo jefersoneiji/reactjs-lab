@@ -8,6 +8,7 @@ export const UseCallbackLab = () => {
             <h2>UseCallback Lab</h2>
             <PreventComponentReRenders />
             <UpdatingStateFromAMemoizedCallback />
+            <PreventAnEffectFromFiringTooOften />
         </>
     );
 };
@@ -146,6 +147,78 @@ const UpdatingStateFromAMemoizedCallback = () => {
         <>
             <h3>Updating state from a memoized callback</h3>
             <TodoList />
+        </>
+    );
+};
+
+const create_connection = ({ server_url, room_id }: { server_url: string, room_id: string; }) => {
+    return {
+        connect() {
+            console.log('✅ Connecting to ' + room_id + " room at " + server_url);
+        },
+        disconnect() {
+            console.log('❌ Disconnected from ' + room_id + " room at " + server_url);
+        },
+    };
+};
+
+const ChatRoom = ({ room_id }: { room_id: string; }) => {
+    const [message, setMessage] = useState('');
+
+    const create_options = useCallback(() => {
+        return {
+            server_url: 'https://localhost:1234',
+            room_id
+        };
+    }, [room_id]);
+
+    useEffect(() => {
+
+        const options = create_options();
+        const connection = create_connection(options);
+        connection.connect();
+        return () => {
+            connection.disconnect();
+        };
+    }, [create_options]);
+
+    return (
+        <>
+            <h4>Welcome to the {room_id} room!</h4>
+            <input value={message} onChange={e => setMessage(e.target.value)} />
+        </>
+    );
+};
+
+const App = () => {
+    const [room_id, setRoomId] = useState('general');
+    const [show, setShow] = useState(false);
+
+    return (
+        <>
+            <label>
+                Choose the chat room: {" "}
+                <select value={room_id} onChange={e => setRoomId(e.target.value)}>
+                    <option value="general">general</option>
+                    <option value="travel">travel</option>
+                    <option value="music">music</option>
+                </select>
+            </label>
+            {" "}
+            <button onClick={() => setShow(!show)}>
+                {show ? 'Close chat' : 'Open chat'}
+            </button>
+            {show && <hr />}
+            {show && <ChatRoom room_id={room_id} />}
+        </>
+    );
+};
+
+const PreventAnEffectFromFiringTooOften = () => {
+    return (
+        <>
+            <h3>Preventing An Effect From Firing Too Often</h3>
+            <App />
         </>
     );
 };
