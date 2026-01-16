@@ -1,6 +1,7 @@
 import './App.css';
-import { SuspenseLab } from './components/suspense';
+import { UseEffectEvenLab } from './hooks/use-effect-event';
 import { UseCallbackLab } from './hooks/use-callback';
+import { SuspenseLab } from './components/suspense';
 import { UseEffectLab } from './hooks/use-effect';
 import { UseReducer } from './hooks/use-reducer';
 import { UseState } from './hooks/use-state';
@@ -14,6 +15,7 @@ function App() {
       <SuspenseLab />
       <UseEffectLab />
       <UseCallbackLab />
+      <UseEffectEvenLab />
     </>
   );
 }
