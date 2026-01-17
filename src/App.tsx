@@ -5,6 +5,7 @@ import { SuspenseLab } from './components/suspense';
 import { UseEffectLab } from './hooks/use-effect';
 import { UseReducer } from './hooks/use-reducer';
 import { UseState } from './hooks/use-state';
+import { UseOptimisticLab } from './hooks/use-optimistic';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <UseEffectLab />
       <UseCallbackLab />
       <UseEffectEvenLab />
+      <UseOptimisticLab />
     </>
   );
 }
