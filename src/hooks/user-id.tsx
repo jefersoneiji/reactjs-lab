@@ -56,3 +56,30 @@ const GenerateIDForRelatedElements = () => {
         </>
     );
 };
+
+
+const PasswordFieldDifferentApps = () => {
+    const password_hint_id = useId();
+    console.log('Generate identifier: ', password_hint_id);
+    return (
+        <>
+            <label>
+                Password:
+                <input type='password' aria-describedby={password_hint_id} />
+            </label>
+            <p id={password_hint_id}>
+                The password should contain at least 18 characters
+            </p>
+        </>
+    );
+};
+
+export const AppUseId = () => {
+    return (
+        <>
+            <h3>Generate Unique ID for accessibility attributes</h3>
+            <h4>Choose password</h4>
+            <PasswordFieldDifferentApps />
+        </>
+    );
+};
