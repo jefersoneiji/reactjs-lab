@@ -7,6 +7,7 @@ import { UseReducer } from './hooks/use-reducer';
 import { UseState } from './hooks/use-state';
 import { UseOptimisticLab } from './hooks/use-optimistic';
 import { UseIdLab } from './hooks/user-id';
+import { UseRefLab } from './hooks/use-ref';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <UseEffectEvenLab />
       <UseOptimisticLab />
       <UseIdLab />
+      <UseRefLab />
     </>
   );
 }
