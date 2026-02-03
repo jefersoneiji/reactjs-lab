@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export const UseRefLab = () => {
     return (
@@ -6,6 +6,7 @@ export const UseRefLab = () => {
             <h2>UseRef Lab</h2>
             <ReferencingAValueWithRef />
             <ManipulatingDOMWithARef />
+            <AvoidingRecreatingTheRefContents />
         </>
     );
 };
@@ -38,6 +39,26 @@ const ManipulatingDOMWithARef = () => {
             <h3>Manipulating DOM with a ref</h3>
             <input ref={input_ref} />
             <button onClick={handle_click}>Focus the input</button>
+        </>
+    );
+};
+
+function some_random_function() {
+    console.log('some random function was reassigned to useRef!');
+}
+
+const AvoidingRecreatingTheRefContents = () => {
+    const input_ref = useRef<null | void>(null);
+    if (input_ref.current === null) {
+        input_ref.current = some_random_function();
+    }
+    const [input_value, setInputValue] = useState('');
+
+
+    return (
+        <>
+            <h3>Avoiding recreating the ref contents</h3>
+            <input value={input_value} onChange={e => setInputValue(e.target.value)} />
         </>
     );
 };
