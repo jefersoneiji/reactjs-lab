@@ -5,6 +5,7 @@ export const ProfilerLab = () => {
         <>
             <h2>Profiler Lab</h2>
             <MeasuringRenderingPerformanceProgrammatically />
+            <MeasuringDifferentPartsOfTheApplication />
         </>
     );
 };
@@ -33,6 +34,31 @@ const MeasuringRenderingPerformanceProgrammatically = () => {
         <>
             <h3>Measuring rendering performance programmatically</h3>
             <Profiler id="profiling-lab" onRender={on_render}>
+                <ProfiledComponent />
+            </Profiler>
+        </>
+    );
+};
+
+const MeasuringDifferentPartsOfTheApplication = () => {
+    const on_render: ProfilerOnRenderCallback = (
+        id,
+        phase,
+        actualDuration,
+        baseDuration,
+        startTime,
+        commitTime,
+    ) => {
+        console.log(`Component ${id} (${phase}):`, { id, phase, actualDuration, baseDuration, startTime, commitTime });
+    };
+
+    return (
+        <>
+            <h3>Measuring Different Parts Of The Application</h3>
+            <Profiler id="profiling-1" onRender={on_render}>
+                <ProfiledComponent />
+            </Profiler>
+            <Profiler id="profiling-2" onRender={on_render}>
                 <ProfiledComponent />
             </Profiler>
         </>
