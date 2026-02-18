@@ -1,5 +1,5 @@
 import './activity.css';
-import { Activity, useState } from "react";
+import { Activity, Suspense, use, useState } from "react";
 
 export const ActivityLab = () => {
     return (
@@ -7,6 +7,7 @@ export const ActivityLab = () => {
             <h2>Activity Lab</h2>
             <RestoringStateOfComponents />
             <RestoringTheDOMOfHiddenComponents />
+            <PreRenderingComponent />
         </>
     );
 };
@@ -33,6 +34,7 @@ const Sidebar = () => {
         </nav>
     );
 };
+
 const Main = () => {
     const [is_showing_side_bar, setIsShowingSideBar] = useState(true);
     return (
@@ -59,7 +61,8 @@ const RestoringStateOfComponents = () => {
         </>
     );
 };
-const TabButton = ({ onClick, children, isActive }: { onClick: () => void; children: React.ReactNode; isActive: boolean }) => {
+
+const TabButton = ({ onClick, children, isActive }: { onClick: () => void; children: React.ReactNode; isActive: boolean; }) => {
     if (isActive) {
         return <b>{children}</b>;
     }
@@ -93,8 +96,6 @@ const Home = () => {
     );
 };
 
-
-
 const RestoreDOMApp = () => {
     const [active_tab, setActiveTab] = useState('contact');
 
@@ -118,6 +119,7 @@ const RestoreDOMApp = () => {
         </>
     );
 };
+
 const RestoringTheDOMOfHiddenComponents = () => {
     return (
         <>
@@ -126,3 +128,75 @@ const RestoringTheDOMOfHiddenComponents = () => {
         </>
     );
 };
+
+let cache = new Map();
+
+function fetch_data(url: string) {
+    if (!cache.has(url)) {
+        cache.set(url, getData(url));
+    }
+    return cache.get(url);
+}
+
+async function getData(url: string) {
+    if (url.startsWith('/posts')) {
+        return await getPosts();
+    } else {
+        throw Error('Not implemented.');
+    }
+}
+
+async function getPosts() {
+    await new Promise(resolve => { setTimeout(resolve, 1000); });
+    let posts = [];
+    for (let i = 0; i < 10; i++) {
+        posts.push({ id: i, title: 'Post #' + (i + 1) });
+    }
+    return posts;
+}
+
+const Posts = () => {
+    const posts = use(fetch_data('/posts')) as { id: number; title: string }[];
+
+    return (
+        <ul>
+            {posts.map(post => <li key={post.id}>{post.title}</li>)}
+        </ul>
+    );
+};
+
+const PreRenderingApp = () => {
+    const [active_tab, setActiveTab] = useState('home');
+
+    return (
+        <>
+            <TabButton isActive={active_tab === 'home'} onClick={() => setActiveTab('home')}>
+                Home
+            </TabButton>
+            <TabButton isActive={active_tab === 'posts'} onClick={() => setActiveTab('posts')}>
+                Posts
+            </TabButton>
+
+            <hr />
+
+            <Suspense fallback={<h1>🌀 Loading...</h1>}>
+                <Activity mode={active_tab === 'home' ? 'visible' : 'hidden'}>
+                    <Home />
+                </Activity>
+                <Activity mode={active_tab === 'posts' ? 'visible' : 'hidden'}>
+                    <Posts />
+                </Activity>
+            </Suspense>
+        </>
+    );
+};
+
+const PreRenderingComponent = () => {
+    return (
+        <>
+            <h3>Pre-Rendering Content that's likely to become visible</h3>
+            <PreRenderingApp />
+        </>
+    );
+};
+
