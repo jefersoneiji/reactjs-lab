@@ -1,0 +1,8 @@
+.indicator {
+  margin-left: 4px;
+  display: inline-block;
+  rotate: 90deg;
+}
+.indicator.down {
+  rotate: 180deg;
+}

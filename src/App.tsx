@@ -9,6 +9,7 @@ import { UseReducer } from './hooks/use-reducer';
 import { UseState } from './hooks/use-state';
 import { UseRefLab } from './hooks/use-ref';
 import { UseIdLab } from './hooks/user-id';
+import { ActivityLab } from './components/activity';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <UseIdLab />
       <UseRefLab />
       <ProfilerLab />
+      <ActivityLab />
     </>
   );
 }
