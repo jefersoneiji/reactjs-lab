@@ -1,4 +1,4 @@
-import { memo, startTransition, useState, useTransition } from "react"
+import { memo, startTransition, Suspense, useState, useTransition } from "react"
 
 export const UseTransitionLab = () => {
     return (
@@ -7,6 +7,7 @@ export const UseTransitionLab = () => {
             <PerformNonBlockingUpdatesWithActions />
             <ExposingActionPropFromComponents />
             <DisplayingAPendingVisualState />
+            <PreventingUnwantedLoadingIndicators />
         </>
     )
 }
@@ -251,11 +252,47 @@ const TabContainerWithPendingState = () => {
         </>
     )
 }
+
 const DisplayingAPendingVisualState = () => {
     return (
         <>
             <h3>Displaying A Pending Visual State</h3>
             <TabContainerWithPendingState />
+        </>
+    )
+}
+
+const TabContainerWithoutUnwantedLoading = () => {
+    const [tab, setTab] = useState('about')
+
+    return (
+        <Suspense fallback={<h1>🌀 Loading...</h1>}>
+            <TabButtonWithPendingState isActive={tab === 'about'} action={() => setTab('about')}>
+                About
+            </TabButtonWithPendingState>
+
+            <TabButtonWithPendingState isActive={tab === 'posts'} action={() => setTab('posts')}>
+                Posts (slow)
+            </TabButtonWithPendingState>
+
+            <TabButtonWithPendingState isActive={tab === 'contact'} action={() => setTab('contact')}>
+                Contact
+            </TabButtonWithPendingState>
+
+            <hr />
+
+            {tab === 'about' && <AboutTab />}
+            {tab === 'posts' && <PostsTab />}
+            {tab === 'contact' && <ContactTab />}
+        </Suspense>
+    )
+}
+
+const PreventingUnwantedLoadingIndicators = () => {
+    return (
+        <>
+            <h3>Preventing unwanted loading indicators</h3>
+            <TabContainerWithoutUnwantedLoading />
         </>
     )
 }
