@@ -1,4 +1,4 @@
-import { memo, startTransition, Suspense, useState, useTransition } from "react"
+import { memo, startTransition, Suspense, use, useState, useTransition } from "react"
 
 export const UseTransitionLab = () => {
     return (
@@ -8,6 +8,7 @@ export const UseTransitionLab = () => {
             <ExposingActionPropFromComponents />
             <DisplayingAPendingVisualState />
             <PreventingUnwantedLoadingIndicators />
+            <BuildingASuspenseEnabledRouter />
         </>
     )
 }
@@ -293,6 +294,51 @@ const PreventingUnwantedLoadingIndicators = () => {
         <>
             <h3>Preventing unwanted loading indicators</h3>
             <TabContainerWithoutUnwantedLoading />
+        </>
+    )
+}
+
+const profileDataPromise = new Promise((resolve) => {
+    setTimeout(() => resolve("Welcome to the Profile!"), 10000);
+});
+
+const ProfilePage = () => {
+    const message = use(profileDataPromise) as string
+    return <h2>{message}</h2>
+}
+
+const App = () => {
+    const [page, setPage] = useState('home')
+    const [isPending, startTransition] = useTransition()
+
+    const navigate = (nextPage: string) => {
+        startTransition(() => {
+            setPage(nextPage)
+        })
+    }
+
+    return (
+        <div style={{ opacity: isPending ? 0.6 : 1 }}>
+            <nav>
+                <button onClick={() => navigate('home')}>Home</button>
+                <button onClick={() => navigate('profile')}>Profile</button>
+                {isPending && " (Loading next page...)"}
+            </nav>
+
+            <hr />
+
+            <Suspense fallback={<h1>🌀 Loading spinner...</h1>}>
+                {page === 'home' ? <p>this is the Home Page</p> : <ProfilePage />}
+            </Suspense>
+        </div>
+    )
+}
+
+const BuildingASuspenseEnabledRouter = () => {
+    return (
+        <>
+            <h3>Building a Suspense-enabled router</h3>
+            <App />
         </>
     )
 }
