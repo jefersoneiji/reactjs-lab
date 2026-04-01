@@ -6,6 +6,7 @@ export const UseTransitionLab = () => {
             <h2>Use Transition Lab</h2>
             <PerformNonBlockingUpdatesWithActions />
             <ExposingActionPropFromComponents />
+            <DisplayingAPendingVisualState />
         </>
     )
 }
@@ -198,6 +199,63 @@ const ExposingActionPropFromComponents = () => {
         <>
             <h3>Exposing Action Prop from Components</h3>
             <TabContainer />
+        </>
+    )
+}
+
+const TabButtonWithPendingState = ({ action, children, isActive }: { action: () => void | Promise<void>; children: React.ReactNode; isActive: boolean }) => {
+    const [isPending, startTransaction] = useTransition()
+
+    if (isActive) {
+        return <b>{children}</b>
+    }
+
+    if (isPending) {
+        return <b style={{ color: '#777' }}>{children}</b>
+    }
+
+    return (
+        <button onClick={async () => {
+            startTransaction(async () => {
+                await action()
+            })
+        }}>
+            {children}
+        </button>
+    )
+
+}
+
+const TabContainerWithPendingState = () => {
+    const [tab, setTab] = useState('about')
+
+    return (
+        <>
+            <TabButtonWithPendingState isActive={tab === 'about'} action={() => setTab('about')}>
+                About
+            </TabButtonWithPendingState>
+
+            <TabButtonWithPendingState isActive={tab === 'posts'} action={() => setTab('posts')}>
+                Posts (slow)
+            </TabButtonWithPendingState>
+
+            <TabButtonWithPendingState isActive={tab === 'contact'} action={() => setTab('contact')}>
+                Contact
+            </TabButtonWithPendingState>
+
+            <hr />
+
+            {tab === 'about' && <AboutTab />}
+            {tab === 'posts' && <PostsTab />}
+            {tab === 'contact' && <ContactTab />}
+        </>
+    )
+}
+const DisplayingAPendingVisualState = () => {
+    return (
+        <>
+            <h3>Displaying A Pending Visual State</h3>
+            <TabContainerWithPendingState />
         </>
     )
 }
