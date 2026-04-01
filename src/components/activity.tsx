@@ -1,5 +1,5 @@
 import './activity.css';
-import { Activity, Suspense, use, useState } from "react";
+import { Activity, Suspense, use, useState, type JSX } from "react";
 
 export const ActivityLab = () => {
     return (
@@ -8,6 +8,7 @@ export const ActivityLab = () => {
             <RestoringStateOfComponents />
             <RestoringTheDOMOfHiddenComponents />
             <PreRenderingComponent />
+            <SelectiveHydration />
         </>
     );
 };
@@ -156,7 +157,7 @@ async function getPosts() {
 }
 
 const Posts = () => {
-    const posts = use(fetch_data('/posts')) as { id: number; title: string }[];
+    const posts = use(fetch_data('/posts')) as { id: number; title: string; }[];
 
     return (
         <ul>
@@ -196,6 +197,86 @@ const PreRenderingComponent = () => {
         <>
             <h3>Pre-Rendering Content that's likely to become visible</h3>
             <PreRenderingApp />
+        </>
+    );
+};
+
+type ITab = "home" | "video";
+
+const Tab = ({
+    isActive,
+    onClick,
+    children
+}: {
+    isActive: boolean,
+    onClick: () => void;
+    children: React.ReactNode;
+}) => {
+    return (
+        <button onClick={onClick} aria-pressed={isActive} style={{
+            padding: "8px 12px",
+            marginRight: 8,
+            borderRadius: 8,
+            color: 'black',
+            border: "1px solid #ccc",
+            background: isActive ? "#787575" : "#fff",
+            cursor: "pointer",
+        }}>
+            {children}
+        </button>
+    );
+};
+
+function TabHome() {
+    return (
+        <section>
+            <h2>Home</h2>
+            <p>This content can be large and slow to hydrate.</p>
+            {Array.from({ length: 100 }).map((_, i) => (<p key={i}>Home item {i + 1}</p>))}
+        </section>
+    );
+}
+
+function TabVideo() {
+    return (
+        <section>
+            <h2>Video</h2>
+            <p>This content could also contain heavy client code.</p>
+            {Array.from({ length: 100 }).map((_, i) => (<p key={i}>Home item {i + 1}</p>))}
+        </section>
+    );
+}
+
+const TabPage = (): JSX.Element => {
+    const [active_tab, set_tab] = useState<ITab>('home');
+
+    return (
+        <main>
+            <nav style={{ marginBottom: 16 }}>
+                <Tab isActive={active_tab === "home"} onClick={() => set_tab("home")}>
+                    Home
+                </Tab>
+
+                <Tab isActive={active_tab === "video"} onClick={() => set_tab("video")}>
+                    Video
+                </Tab>
+            </nav>
+
+            <Activity mode={active_tab === "home" ? 'visible' : 'hidden'}>
+                <TabHome />
+            </Activity>
+
+            <Activity mode={active_tab === "video" ? 'visible' : 'hidden'}>
+                <TabVideo />
+            </Activity>
+        </main>
+    );
+};
+const SelectiveHydration = () => {
+    return (
+        <>
+            <h3>Selective Hydration that speed up interactions during page load</h3>
+            <TabPage />
         </>
     );
 };
