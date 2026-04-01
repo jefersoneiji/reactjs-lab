@@ -10,6 +10,7 @@ import { UseState } from './hooks/use-state';
 import { UseRefLab } from './hooks/use-ref';
 import { UseIdLab } from './hooks/user-id';
 import { ActivityLab } from './components/activity';
+import { UseTransitionLab } from './hooks/use-transition';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <UseCallbackLab />
       <UseEffectEvenLab />
       <UseOptimisticLab />
+      <UseTransitionLab />
       <UseIdLab />
       <UseRefLab />
       <ProfilerLab />
