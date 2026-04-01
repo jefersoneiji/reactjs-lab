@@ -1,4 +1,5 @@
 import { memo, startTransition, Suspense, use, useState, useTransition } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 
 export const UseTransitionLab = () => {
     return (
@@ -9,6 +10,7 @@ export const UseTransitionLab = () => {
             <DisplayingAPendingVisualState />
             <PreventingUnwantedLoadingIndicators />
             <BuildingASuspenseEnabledRouter />
+            <DisplayingAnErrorToUsersWithAnErrorBoundary />
         </>
     )
 }
@@ -339,6 +341,44 @@ const BuildingASuspenseEnabledRouter = () => {
         <>
             <h3>Building a Suspense-enabled router</h3>
             <App />
+        </>
+    )
+}
+
+const AddCommentButton = () => {
+    const [pending, startTransition] = useTransition()
+    return (
+        <button
+            disabled={pending}
+            onClick={() => {
+                startTransition(() => {
+                    addComment()
+                })
+            }}>
+            Add Comment
+        </button>
+    )
+}
+
+const addComment = (comment?: string) => {
+    if (comment == undefined) {
+        throw new Error('Example Error: An Error thrown to trigger error boundary.')
+    }
+}
+
+const AddCommentcontainer = () => {
+    return (
+        <ErrorBoundary fallback={<p>⚠️ Something went wrong.</p>}>
+            <AddCommentButton />
+        </ErrorBoundary>
+    )
+}
+
+const DisplayingAnErrorToUsersWithAnErrorBoundary = () => {
+    return (
+        <>
+            <h3>Displaying an error to users with an error boundary</h3>
+            <AddCommentcontainer />
         </>
     )
 }
