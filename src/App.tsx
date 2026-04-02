@@ -11,6 +11,7 @@ import { UseRefLab } from './hooks/use-ref';
 import { UseIdLab } from './hooks/user-id';
 import { ActivityLab } from './components/activity';
 import { UseTransitionLab } from './hooks/use-transition';
+import { UseMemoLab } from './hooks/use-memo';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <UseEffectEvenLab />
       <UseOptimisticLab />
       <UseTransitionLab />
+      <UseMemoLab />
       <UseIdLab />
       <UseRefLab />
       <ProfilerLab />
