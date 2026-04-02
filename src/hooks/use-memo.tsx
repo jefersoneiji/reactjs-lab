@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 
 export const UseMemoLab = () => {
     return (
@@ -6,6 +6,7 @@ export const UseMemoLab = () => {
             <h2>Use Memo Lab</h2>
             <SkippingExpensiveRecalculations />
             <SkippingReRenderingOfComponents />
+            <MemoizingADependencyOfAnotherHook />
         </>
     );
 };
@@ -169,6 +170,68 @@ const SkippingReRenderingOfComponents = () => {
         <>
             <h3>Skipping re-rendering of components</h3>
             <TodoAppMemo />
+        </>
+    );
+};
+
+interface DropdownOptions {
+    category: string;
+    limit: number;
+}
+
+const SearchPage = () => {
+    const [category, setCategory] = useState('electronics');
+    const [otherState, setOtherState] = useState(0);
+
+    const searchOptions = useMemo((): DropdownOptions => {
+        return {
+            category,
+            limit: 10
+        };
+    }, [category]);
+
+    useEffect(() => {
+        console.log('Fetching data for: ', searchOptions.category);
+
+        const timer = setTimeout(() => {
+            console.log('Data fetched!');
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchOptions]);
+
+    return (
+        <div style={{ padding: '20px' }}>
+            <h4>Category Search</h4>
+
+            <select value={category} onChange={e => setCategory(e.target.value)}>
+                <option value="electronics">Electronics</option>
+                <option value="books">Books</option>
+                <option value="clothing">Clothing</option>
+            </select>
+
+            <hr />
+
+            <p>UI Updated: {otherState}</p>
+            <button onClick={() => setOtherState(s => s + 1)}>
+                Re-render Component
+            </button>
+
+            <p>
+                <small>
+                    Check the console. Clicking "Re-render Component"
+                    <b>won't</b> trigger the "Fetching data" log because of useMemo.
+                </small>
+            </p>
+        </div>
+    );
+};
+
+const MemoizingADependencyOfAnotherHook = () => {
+    return (
+        <>
+            <h3>Memoizing a dependency of another Hook</h3>
+            <SearchPage />
         </>
     );
 };
