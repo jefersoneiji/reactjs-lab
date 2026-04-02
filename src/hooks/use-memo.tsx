@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
 export const UseMemoLab = () => {
     return (
         <>
             <h2>Use Memo Lab</h2>
             <SkippingExpensiveRecalculations />
+            <SkippingReRenderingOfComponents />
         </>
     );
 };
@@ -61,7 +62,10 @@ const TodoList = ({ todos, theme, tab }: TodoListProps) => {
         <div className={theme}>
             <p><b>Nome: <code>filterTodos</code> is artificially slowed down!</b></p>
             <ul>
-                {visibleTodos.map(todo => (<li key={todo.id}>{todo.completed ? <s>{todo.text}</s> : todo.text}</li>))}
+                {visibleTodos.map(todo => {
+                    console.log('List item rendered!');
+                    return (<li key={todo.id}>{todo.completed ? <s>{todo.text}</s> : todo.text}</li>);
+                })}
             </ul>
         </div>
     );
@@ -91,11 +95,76 @@ const TodoApp = () => {
     );
 };
 
+const List = memo(function List({ items }: { items: Todo[]; }) {
+    console.log('[ARTIFICIALLY SLOW] Rendering <List /> with ' + items.length + ' items');
+    let startTime = performance.now();
+    while (performance.now() - startTime < 500) { }
+
+    return (
+        <ul>
+            {items.map((item) => {
+                console.log('ITEM FROM MEMO RENDERED!');
+                return (
+                    <li key={item.id}>
+                        {item.completed ? <s>{item.text}</s> : item.text}
+                    </li>
+                );
+            })}
+        </ul>
+    );
+});
+
+const TodoListMemo = ({ todos, theme, tab }: TodoListProps) => {
+    const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
+    const children = useMemo(() => <List items={visibleTodos} />, [visibleTodos]);
+
+    return (
+        <div className={theme}>
+            <p><b>Nome: <code>filterTodos</code> is artificially slowed down!</b></p>
+            {children}
+        </div>
+    );
+};
+
+
+const TodoAppMemo = () => {
+    const [tab, setTab] = useState<'all' | 'active' | 'completed'>('all');
+    const [isDark, setIsDark] = useState(false);
+
+    return (
+        <>
+            <button onClick={() => setTab('all')}>All</button>
+            <button onClick={() => setTab('active')}>Active</button>
+            <button onClick={() => setTab('completed')}>Completed</button>
+            <br />
+            <label>
+                <input
+                    type='checkbox'
+                    checked={isDark}
+                    onChange={e => setIsDark(e.target.checked)}
+                />
+                Dark Mode
+            </label>
+            <hr />
+            <TodoListMemo todos={todos} tab={tab} theme={isDark ? "dark" : "light"} />
+        </>
+    );
+};
+
 const SkippingExpensiveRecalculations = () => {
     return (
         <>
             <h3>Skipping expensive recalculations</h3>
             <TodoApp />
+        </>
+    );
+};
+
+const SkippingReRenderingOfComponents = () => {
+    return (
+        <>
+            <h3>Skipping re-rendering of components</h3>
+            <TodoAppMemo />
         </>
     );
 };
