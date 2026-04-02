@@ -12,6 +12,7 @@ import { UseIdLab } from './hooks/user-id';
 import { ActivityLab } from './components/activity';
 import { UseTransitionLab } from './hooks/use-transition';
 import { UseMemoLab } from './hooks/use-memo';
+import { UseDeferredValueLab } from './hooks/use-deferred-value';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <UseOptimisticLab />
       <UseTransitionLab />
       <UseMemoLab />
+      <UseDeferredValueLab />
       <UseIdLab />
       <UseRefLab />
       <ProfilerLab />
