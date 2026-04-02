@@ -66,6 +66,10 @@ const TodoList = ({ todos, theme, tab }: TodoListProps) => {
                     console.log('List item rendered!');
                     return (<li key={todo.id}>{todo.completed ? <s>{todo.text}</s> : todo.text}</li>);
                 })}
+                {visibleTodos.map(todo => {
+                    console.log('List item rendered!');
+                    return (<li key={todo.id}>{todo.completed ? <s>{todo.text}</s> : todo.text}</li>);
+                })}
             </ul>
         </div>
     );
