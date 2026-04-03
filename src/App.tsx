@@ -14,6 +14,7 @@ import { UseMemoLab } from './hooks/use-memo';
 import { UseState } from './hooks/use-state';
 import { UseRefLab } from './hooks/use-ref';
 import { UseIdLab } from './hooks/user-id';
+import { UseDebugLab } from './hooks/use-debug-value';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
       <ProfilerLab />
       <ActivityLab />
       <SuspenseLab />
+      <UseDebugLab />
       <UseEffectLab />
       <UseCallbackLab />
       <UseEffectEvenLab />
