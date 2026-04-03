@@ -7,6 +7,7 @@ export const UseSyncExternalStoreLab = () => {
             <SubscribingToAnExternalStore />
             <SubscribingToABrowserAPI />
             <ExtractTheLogicToACustomHook />
+            <AddingSupportForServerRendering />
         </>
     );
 };
@@ -138,11 +139,47 @@ const UseHook = () => {
         </div>
     );
 };
+
 const ExtractTheLogicToACustomHook = () => {
     return (
         <>
             <h3>Extract The Logic to a Custom Hook</h3>
             <UseHook />
+        </>
+    );
+};
+
+const ServerSupport = () => {
+    const mousePosition = useSyncExternalStore(subscribe, getSnapshot, () => '0,0');
+
+    const [x, y] = mousePosition.split(',').map(Number);
+
+    return (
+        <div style={{ height: '100vh', cursor: 'crosshair', padding: '20px' }}>
+            <div style={{
+                position: 'fixed',
+                left: x + 25, // Offset so it doesn't flicker under the cursor
+                top: y + 25,
+                background: 'green',
+                color: 'white',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                pointerEvents: 'none', // Prevents the div from blocking mouse events
+                fontSize: '12px'
+            }}>
+                {x}px, {y}px
+            </div>
+            <h2>Move your mouse around!</h2>
+            <p>The coordinates are being synced directly from the Browser API.</p>
+        </div>
+    );
+};
+
+const AddingSupportForServerRendering = () => {
+    return (
+        <>
+            <h3>Adding Support For Server Rendering</h3>
+            <ServerSupport />
         </>
     );
 };
