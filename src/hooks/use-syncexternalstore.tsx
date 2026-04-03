@@ -6,6 +6,7 @@ export const UseSyncExternalStoreLab = () => {
             <h2>Use Sync External Source Lab</h2>
             <SubscribingToAnExternalStore />
             <SubscribingToABrowserAPI />
+            <ExtractTheLogicToACustomHook />
         </>
     );
 };
@@ -105,6 +106,43 @@ const SubscribingToABrowserAPI = () => {
         <>
             <h3>Subscribing To a browser API</h3>
             <MouseTracker />
+        </>
+    );
+};
+
+const useMouseTracker = () => {
+    const mousePosition = useSyncExternalStore(subscribe, getSnapshot);
+    const [x, y] = mousePosition.split(',').map(Number);
+    return { x, y };
+};
+
+const UseHook = () => {
+    const { x, y } = useMouseTracker();
+    return (
+        <div style={{ height: '100vh', cursor: 'crosshair', padding: '20px' }}>
+            <div style={{
+                position: 'fixed',
+                left: x + 20, // Offset so it doesn't flicker under the cursor
+                top: y + 20,
+                background: 'red',
+                color: 'white',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                pointerEvents: 'none', // Prevents the div from blocking mouse events
+                fontSize: '12px'
+            }}>
+                {x}px, {y}px
+            </div>
+            <h2>Move your mouse around!</h2>
+            <p>The coordinates are being synced directly from the Browser API.</p>
+        </div>
+    );
+};
+const ExtractTheLogicToACustomHook = () => {
+    return (
+        <>
+            <h3>Extract The Logic to a Custom Hook</h3>
+            <UseHook />
         </>
     );
 };
