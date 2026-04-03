@@ -5,6 +5,7 @@ export const UseDebugLab = () => {
         <>
             <h2>Use Debug Lab</h2>
             <AddingALabelToACustomHook />
+            <DeferringFormattingOfADebugValue />
         </>
     );
 };
@@ -12,9 +13,9 @@ export const UseDebugLab = () => {
 
 const useCounter = (initialValue?: number): [() => void, () => void, number] => {
     const [count, setCount] = useState(initialValue || 0);
-    
+
     useDebugValue(count > 0 ? "Value greater than zero." : "Value is zero.");
-    
+
     const increaseCounter = () => setCount(v => v + 1);
     const decreaseCounter = () => setCount(v => v - 1);
 
@@ -38,6 +39,40 @@ const AddingALabelToACustomHook = () => {
         <>
             <h3>Adding a label to a custom hook</h3>
             <CounterApp />
+        </>
+    );
+};
+
+const useDateFormatter = (initialValue?: Date): [() => void, () => void, string] => {
+    const [date, setDate] = useState<string>(
+        initialValue ? initialValue.toString() : new Date().toString()
+    );
+
+    useDebugValue(date, date => new Date(date).toLocaleString());
+
+    const dateToIso = () => setDate(v => new Date(v).toISOString());
+    const dateToString = () => setDate(v => new Date(v).toString());
+
+    return [dateToIso, dateToString, date];
+};
+
+const DateApp = () => {
+    const [dateToIso, dateToString, date] = useDateFormatter();
+
+    return (
+        <>
+            <p>current date is: {date}</p>
+            <button onClick={()=>dateToIso()}>Date To ISO</button>
+            <button onClick={()=>dateToString()}>Date To String</button>
+        </>
+    );
+};
+
+const DeferringFormattingOfADebugValue = () => {
+    return (
+        <>
+            <h3>Deferring formatting of a debug value</h3>
+            <DateApp />
         </>
     );
 };
