@@ -5,6 +5,7 @@ export const UseSyncExternalStoreLab = () => {
         <>
             <h2>Use Sync External Source Lab</h2>
             <SubscribingToAnExternalStore />
+            <SubscribingToABrowserAPI />
         </>
     );
 };
@@ -53,6 +54,57 @@ const SubscribingToAnExternalStore = () => {
         <>
             <h3>Subscribing To An External Store</h3>
             <ExternalApp />
+        </>
+    );
+};
+
+
+let mousePosition = { x: 0, y: 0 };
+
+function subscribe(callback: () => void) {
+    const handler = (e: MouseEvent) => {
+        mousePosition = { x: e.clientX, y: e.clientY };
+        callback();
+    };
+    window.addEventListener('mousemove', handler);
+    return () => window.removeEventListener('mousemove', handler);
+}
+
+function getSnapshot() {
+    return `${mousePosition.x},${mousePosition.y}`;
+}
+
+const MouseTracker = () => {
+    const mousePosition = useSyncExternalStore(subscribe, getSnapshot);
+
+    const [x, y] = mousePosition.split(',').map(Number);
+
+    return (
+        <div style={{ height: '100vh', cursor: 'crosshair', padding: '20px' }}>
+            <div style={{
+                position: 'fixed',
+                left: x + 15, // Offset so it doesn't flicker under the cursor
+                top: y + 15,
+                background: '#007AFF',
+                color: 'white',
+                padding: '5px 10px',
+                borderRadius: '4px',
+                pointerEvents: 'none', // Prevents the div from blocking mouse events
+                fontSize: '12px'
+            }}>
+                {x}px, {y}px
+            </div>
+            <h2>Move your mouse around!</h2>
+            <p>The coordinates are being synced directly from the Browser API.</p>
+        </div>
+    );
+};
+
+const SubscribingToABrowserAPI = () => {
+    return (
+        <>
+            <h3>Subscribing To a browser API</h3>
+            <MouseTracker />
         </>
     );
 };
