@@ -1,4 +1,4 @@
-import { startTransition, useActionState } from "react";
+import { startTransition, useActionState, useOptimistic } from "react";
 
 export const UseActionStateLab = () => {
     return (
@@ -6,6 +6,7 @@ export const UseActionStateLab = () => {
             <h2>Use Action State Lab</h2>
             <AddingStateToAnAction />
             <UsingMultipleActionTypes />
+            <UsingWithUseOptimistic />
         </>
     );
 };
@@ -163,6 +164,53 @@ const UsingMultipleActionTypes = () => {
         <>
             <h3>Using Multiple Action Types</h3>
             <UseManyStateApp />
+        </>
+    );
+};
+
+const UseManyStateAppWithOptimistic = () => {
+    const [count, dispatchAction, isPending] = useActionState(updateCartAction, 0);
+    const [optimisticCount, setOptimisticCount] = useOptimistic(count);
+
+    const handleAdd = () => {
+        startTransition(() => {
+            setOptimisticCount(c => c + 1);
+            dispatchAction({ type: 'ADD' });
+        });
+    };
+
+    const handleRemove = () => {
+        startTransition(() => {
+            setOptimisticCount(c => c - 1);
+            dispatchAction({ type: 'REMOVE' });
+        });
+    };
+
+    return (
+        <div style={checkoutStyle}>
+            <h2 style={{ margin: '0 0 8px 0' }}>Checkout</h2>
+            <div style={rowStyle}>
+                <span>Eras Tour Tickets</span>
+                <span style={stepperStyle}>
+                    <span>{isPending && "🌀"}</span>
+                    <span>{optimisticCount}</span>
+                    <span style={buttonsStyle}>
+                        <button onClick={handleAdd}>▲</button>
+                        <button onClick={handleRemove}>▼</button>
+                    </span>
+                </span>
+            </div>
+            <hr />
+            <TotalManyStates quantity={count} isPending={isPending} />
+        </div>
+    );
+};
+
+const UsingWithUseOptimistic = () => {
+    return (
+        <>
+            <h3>Using With Use Optimistic</h3>
+            <UseManyStateAppWithOptimistic />
         </>
     );
 };
