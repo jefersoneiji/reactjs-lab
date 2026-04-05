@@ -1,25 +1,13 @@
-import { startTransition, useActionState, useDebugValue, useState } from "react";
+import { startTransition, useActionState } from "react";
 
 export const UseActionStateLab = () => {
     return (
         <>
             <h2>Use Action State Lab</h2>
             <AddingStateToAnAction />
-            <DeferringFormattingOfADebugValue />
+            <UsingMultipleActionTypes />
         </>
     );
-};
-
-
-const useCounter = (initialValue?: number): [() => void, () => void, number] => {
-    const [count, setCount] = useState(initialValue || 0);
-
-    useDebugValue(count > 0 ? "Value greater than zero." : "Value is zero.");
-
-    const increaseCounter = () => setCount(v => v + 1);
-    const decreaseCounter = () => setCount(v => v - 1);
-
-    return [increaseCounter, decreaseCounter, count];
 };
 
 const rowStyle = {
@@ -40,6 +28,18 @@ const checkoutStyle: React.CSSProperties = {
 
 const totalStyle: React.CSSProperties = {
     fontWeight: 'bold'
+};
+
+const stepperStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+};
+
+const buttonsStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px'
 };
 
 const formatter = new Intl.NumberFormat('en-US', {
@@ -103,36 +103,66 @@ const AddingStateToAnAction = () => {
     );
 };
 
-const useDateFormatter = (initialValue?: Date): [() => void, () => void, string] => {
-    const [date, setDate] = useState<string>(
-        initialValue ? initialValue.toString() : new Date().toString()
-    );
+async function updateCartAction(prevCount: number, actionPayload: { type: string; }) {
+    switch (actionPayload.type) {
+        case 'ADD': {
+            return await addToCart(prevCount);
+        }
+        case 'REMOVE': {
+            return await removeFromCart(prevCount);
+        }
+    }
+    return prevCount;
+}
 
-    useDebugValue(date, date => new Date(date).toLocaleString());
-
-    const dateToIso = () => setDate(v => new Date(v).toISOString());
-    const dateToString = () => setDate(v => new Date(v).toString());
-
-    return [dateToIso, dateToString, date];
-};
-
-const DateApp = () => {
-    const [dateToIso, dateToString, date] = useDateFormatter();
-
+const TotalManyStates = ({ quantity, isPending }: { quantity: number; isPending: boolean; }) => {
     return (
-        <>
-            <p>current date is: {date}</p>
-            <button onClick={() => dateToIso()}>Date To ISO</button>
-            <button onClick={() => dateToString()}>Date To String</button>
-        </>
+        <div style={{ ...rowStyle, ...totalStyle }}>
+            <span>Total</span>
+            <span>{isPending ? '🌀 Updating...' : formatter.format(quantity * 9999)}</span>
+        </div>
     );
 };
 
-const DeferringFormattingOfADebugValue = () => {
+const UseManyStateApp = () => {
+    const [count, dispatchAction, isPending] = useActionState(updateCartAction, 0);
+
+    const handleAdd = () => {
+        startTransition(() => {
+            dispatchAction({ type: 'ADD' });
+        });
+    };
+
+    const handleRemove = () => {
+        startTransition(() => {
+            dispatchAction({ type: 'REMOVE' });
+        });
+    };
+
+    return (
+        <div style={checkoutStyle}>
+            <h2 style={{ margin: '0 0 8px 0' }}>Checkout</h2>
+            <div style={rowStyle}>
+                <span>Eras Tour Tickets</span>
+                <span style={stepperStyle}>
+                    <span>{isPending ? " 🌀" : count}</span>
+                    <span style={buttonsStyle}>
+                        <button onClick={handleAdd}>▲</button>
+                        <button onClick={handleRemove}>▼</button>
+                    </span>
+                </span>
+            </div>
+            <hr />
+            <TotalManyStates quantity={count} isPending={isPending} />
+        </div>
+    );
+};
+
+const UsingMultipleActionTypes = () => {
     return (
         <>
-            <h3>Deferring formatting of a debug value</h3>
-            <DateApp />
+            <h3>Using Multiple Action Types</h3>
+            <UseManyStateApp />
         </>
     );
 };
