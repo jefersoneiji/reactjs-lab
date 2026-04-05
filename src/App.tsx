@@ -1,9 +1,11 @@
 import './App.css';
 import { UseSyncExternalStoreLab } from './hooks/use-syncexternalstore';
 import { UseDeferredValueLab } from './hooks/use-deferred-value';
+import { UseActionStateLab } from './hooks/use-action-state';
 import { UseEffectEvenLab } from './hooks/use-effect-event';
 import { UseTransitionLab } from './hooks/use-transition';
 import { UseOptimisticLab } from './hooks/use-optimistic';
+import { UseDebugLab } from './hooks/use-debug-value';
 import { UseCallbackLab } from './hooks/use-callback';
 import { ActivityLab } from './components/activity';
 import { ProfilerLab } from './components/profiler';
@@ -14,7 +16,6 @@ import { UseMemoLab } from './hooks/use-memo';
 import { UseState } from './hooks/use-state';
 import { UseRefLab } from './hooks/use-ref';
 import { UseIdLab } from './hooks/user-id';
-import { UseDebugLab } from './hooks/use-debug-value';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
       <UseEffectEvenLab />
       <UseOptimisticLab />
       <UseTransitionLab />
+      <UseActionStateLab />
       <UseDeferredValueLab />
       <UseSyncExternalStoreLab />
     </>
