@@ -1,4 +1,4 @@
-import { startTransition, useActionState, useOptimistic } from "react";
+import { startTransition, useActionState, useOptimistic, useRef } from "react";
 
 export const UseActionStateLab = () => {
     return (
@@ -8,6 +8,7 @@ export const UseActionStateLab = () => {
             <UsingMultipleActionTypes />
             <UsingWithUseOptimistic />
             <UsingWithActionProps />
+            <CancelingQueuedActions />
         </>
     );
 };
@@ -219,11 +220,11 @@ const UsingWithUseOptimistic = () => {
 const WithActionProps = () => {
     const [count, dispatchAction, isPending] = useActionState(updateCartAction, 0);
 
-    const addAction = () => {
+    const addAction = async () => {
         dispatchAction({ type: 'ADD' });
     };
 
-    const removeAction = () => {
+    const removeAction = async () => {
         dispatchAction({ type: 'REMOVE' });
     };
 
@@ -244,7 +245,7 @@ const WithActionProps = () => {
     );
 };
 
-const QuantityStepper = ({ value, increaseAction, decreaseAction }: { value: number; increaseAction: () => void; decreaseAction: () => void }) => {
+const QuantityStepper = ({ value, increaseAction, decreaseAction }: { value: number; increaseAction: () => Promise<void>; decreaseAction: () => Promise<void> }) => {
     const [optimisticValue, setOptimisticValue] = useOptimistic(value)
     const isPending = value !== optimisticValue
 
@@ -282,3 +283,107 @@ const UsingWithActionProps = () => {
     );
 };
 
+class AbortError extends Error {
+    name = 'AbortError'
+    constructor(message = 'The operation was aborted') {
+        super(message)
+    }
+}
+
+const sleep = (ms: number, signal?: AbortSignal) => {
+    if (!signal) return new Promise<void>(resolve => setTimeout(resolve, ms))
+    if (signal.aborted) return Promise.reject(new AbortError())
+
+    return new Promise<void>((resolve, reject) => {
+        const id = setTimeout(() => {
+            signal.removeEventListener('abort', onAbort)
+            resolve()
+        }, ms)
+
+        const onAbort = () => {
+            clearTimeout(id)
+            reject(new AbortError())
+        }
+
+        signal.addEventListener('abort', onAbort, { once: true })
+    })
+}
+
+const addToCartWithSignal = async (count: number, opts: { signal?: AbortSignal }) => {
+    await sleep(1000, opts?.signal)
+    return count + 1;
+};
+
+const removeFromCartWithSignal = async (count: number, opts: { signal?: AbortSignal }) => {
+    await sleep(1000, opts?.signal)
+    return Math.max(0, count - 1);
+};
+
+async function updateCartActionWithAbortController(prevCount: number, actionPayload: { type: string; signal: AbortSignal }) {
+    switch (actionPayload.type) {
+        case 'ADD': {
+            try {
+                return await addToCartWithSignal(prevCount, { signal: actionPayload.signal });
+            } catch (err) {
+                return prevCount + 1
+            }
+        }
+        case 'REMOVE': {
+            try {
+                return await removeFromCartWithSignal(prevCount, { signal: actionPayload.signal });
+            } catch (err) {
+                return Math.max(0, prevCount - 1)
+            }
+
+        }
+    }
+    return prevCount;
+}
+
+const WithCancelingQueuedActions = () => {
+    const [count, dispatchAction, isPending] = useActionState(updateCartActionWithAbortController, 0);
+    const abortRef = useRef<AbortController | null>(null)
+
+    const addAction = async () => {
+        if (abortRef.current) {
+            abortRef.current.abort()
+        }
+
+        abortRef.current = new AbortController()
+        dispatchAction({ type: 'ADD', signal: abortRef.current.signal });
+    };
+
+    const removeAction = async () => {
+        if (abortRef.current) {
+            abortRef.current.abort()
+        }
+
+        abortRef.current = new AbortController()
+        dispatchAction({ type: 'REMOVE', signal: abortRef.current.signal });
+    };
+
+    return (
+        <div style={checkoutStyle}>
+            <h2 style={{ margin: '0 0 8px 0' }}>Checkout</h2>
+            <div style={rowStyle}>
+                <span>Eras Tour Tickets</span>
+                <QuantityStepper
+                    value={count}
+                    increaseAction={addAction}
+                    decreaseAction={removeAction}
+                />
+            </div>
+            <hr />
+            <TotalManyStates quantity={count} isPending={isPending} />
+        </div>
+    );
+};
+
+const CancelingQueuedActions = () => {
+    return (
+        <>
+            <h3>Canceling Queued Actions</h3>
+            <WithCancelingQueuedActions />
+        </>
+    );
+};
