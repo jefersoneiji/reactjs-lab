@@ -9,6 +9,7 @@ export const UseActionStateLab = () => {
             <UsingWithUseOptimistic />
             <UsingWithActionProps />
             <CancelingQueuedActions />
+            <UsingWithFormActionProps />
         </>
     );
 };
@@ -384,6 +385,65 @@ const CancelingQueuedActions = () => {
         <>
             <h3>Canceling Queued Actions</h3>
             <WithCancelingQueuedActions />
+        </>
+    );
+};
+
+async function updateCartActionWithForm(prevCount: number, formData: FormData) {
+    const type = formData.get('type')
+
+    switch (type) {
+        case 'ADD': {
+            return await addToCart(prevCount);
+        }
+        case 'REMOVE': {
+            return await removeFromCart(prevCount);
+        }
+    }
+    return prevCount;
+}
+
+const UseWithForm = () => {
+    const [count, dispatchAction, isPending] = useActionState(updateCartActionWithForm, 0);
+    const [optimisticCount, setOptimisticCount] = useOptimistic(count);
+
+    const formAction = async (formData: FormData) => {
+        const type = formData.get('type')
+
+        if (type === 'ADD') {
+            setOptimisticCount(c => c + 1);
+        } else {
+            setOptimisticCount(c => c - 1);
+        }
+
+        return dispatchAction(formData)
+    };
+
+    return (
+        <form action={formAction} style={checkoutStyle}>
+            <h2 style={{ margin: '0 0 8px 0' }}>Checkout</h2>
+            <div style={rowStyle}>
+                <span>Eras Tour Tickets</span>
+                <span style={stepperStyle}>
+                    <span>{isPending && "🌀"}</span>
+                    <span>{optimisticCount}</span>
+                    <span style={buttonsStyle}>
+                        <button type='submit' name='type' value="ADD">▲</button>
+                        <button type='submit' name='type' value="REMOVE" >▼</button>
+                    </span>
+                </span>
+            </div>
+            <hr />
+            <TotalManyStates quantity={count} isPending={isPending} />
+        </form>
+    );
+};
+
+const UsingWithFormActionProps = () => {
+    return (
+        <>
+            <h3>Using With Form Action Props</h3>
+            <UseWithForm />
         </>
     );
 };
