@@ -7,6 +7,7 @@ export const UseActionStateLab = () => {
             <AddingStateToAnAction />
             <UsingMultipleActionTypes />
             <UsingWithUseOptimistic />
+            <UsingWithActionProps />
         </>
     );
 };
@@ -211,6 +212,72 @@ const UsingWithUseOptimistic = () => {
         <>
             <h3>Using With Use Optimistic</h3>
             <UseManyStateAppWithOptimistic />
+        </>
+    );
+};
+
+const WithActionProps = () => {
+    const [count, dispatchAction, isPending] = useActionState(updateCartAction, 0);
+
+    const addAction = () => {
+        dispatchAction({ type: 'ADD' });
+    };
+
+    const removeAction = () => {
+        dispatchAction({ type: 'REMOVE' });
+    };
+
+    return (
+        <div style={checkoutStyle}>
+            <h2 style={{ margin: '0 0 8px 0' }}>Checkout</h2>
+            <div style={rowStyle}>
+                <span>Eras Tour Tickets</span>
+                <QuantityStepper
+                    value={count}
+                    increaseAction={addAction}
+                    decreaseAction={removeAction}
+                />
+            </div>
+            <hr />
+            <TotalManyStates quantity={count} isPending={isPending} />
+        </div>
+    );
+};
+
+const QuantityStepper = ({ value, increaseAction, decreaseAction }: { value: number; increaseAction: () => void; decreaseAction: () => void }) => {
+    const [optimisticValue, setOptimisticValue] = useOptimistic(value)
+    const isPending = value !== optimisticValue
+
+    function handleIncrease() {
+        startTransition(async () => {
+            setOptimisticValue(c => c + 1)
+            await increaseAction()
+        })
+    }
+
+    function handleDecrease() {
+        startTransition(async () => {
+            setOptimisticValue(c => Math.max(0, c - 1))
+            await decreaseAction()
+        })
+    }
+    return (
+        <span style={stepperStyle}>
+            <span>{isPending && "🌀"}</span>
+            <span>{optimisticValue}</span>
+            <span style={buttonsStyle}>
+                <button onClick={handleIncrease}>▲</button>
+                <button onClick={handleDecrease}>▼</button>
+            </span>
+        </span>
+    )
+}
+
+const UsingWithActionProps = () => {
+    return (
+        <>
+            <h3>Using With Action Props</h3>
+            <WithActionProps />
         </>
     );
 };
