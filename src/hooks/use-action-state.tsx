@@ -1,4 +1,5 @@
 import { startTransition, useActionState, useOptimistic, useRef } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 export const UseActionStateLab = () => {
     return (
@@ -10,6 +11,7 @@ export const UseActionStateLab = () => {
             <UsingWithActionProps />
             <CancelingQueuedActions />
             <UsingWithFormActionProps />
+            <HandlingErrors />
         </>
     );
 };
@@ -444,6 +446,79 @@ const UsingWithFormActionProps = () => {
         <>
             <h3>Using With Form Action Props</h3>
             <UseWithForm />
+        </>
+    );
+};
+
+const addToCartError = async (count: number, quantity: number) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    if (quantity > 5) {
+        return { count: 0, error: 'Quantity not available' }
+    } else if (isNaN(quantity)) {
+        throw new Error('Quantity must be a number')
+    }
+    return { count: count + 1 };
+};
+
+type CartState = { count: number; error: null | string };
+
+const UseHandleErrors = () => {
+    const [state, dispatchAction, isPending] = useActionState<CartState, number>(async (prevState, quantity) => {
+        const result = await addToCartError(prevState.count, quantity)
+
+        if (result.error) {
+            return { ...prevState, error: `Could not add quantity ${quantity}: ${result.error}` }
+        }
+
+        if (!isPending) {
+            return { count: result.count, error: null }
+        }
+
+        return { count: result.count, error: prevState.error }
+    }, { count: 0, error: null });
+
+    const handleAdd = (quantity: number) => {
+        startTransition(() => {
+            dispatchAction(quantity);
+        });
+    };
+
+    return (
+        <div style={checkoutStyle}>
+            <h2 style={{ margin: '0 0 8px 0' }}>Checkout</h2>
+            <div style={rowStyle}>
+                <span>Eras Tour Tickets</span>
+                <span style={stepperStyle}>
+                    <span>{isPending && "🌀"}</span>
+                    <span>{state.count}</span>
+                    <span style={buttonsStyle}>
+                        <button onClick={() => handleAdd(1)}>Add 1</button>
+                        <button onClick={() => handleAdd(10)}>Add 10</button>
+                        <button onClick={() => handleAdd(NaN)}>Add NaN</button>
+                    </span>
+                </span>
+            </div>
+            {state.error && <div>{state.error}</div>}
+            <hr />
+            <TotalManyStates quantity={state.count} isPending={isPending} />
+        </div>
+    );
+};
+
+const HandlingErrors = () => {
+    return (
+        <>
+            <h3>Handling Errors</h3>
+            <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => (
+                <div>
+                    <h2>Something went wrong</h2>
+                    <p>The action could not be completed.</p>
+                    <button onClick={resetErrorBoundary}>Try again.</button>
+                </div>
+            )}>
+                <UseHandleErrors />
+            </ErrorBoundary>
         </>
     );
 };
