@@ -7,6 +7,7 @@ export const UseContextLab = () => {
             <h2>Use Context Lab</h2>
             <PassingDataDeeplyIntoTheTree />
             <UpdatingDataPassedViaContext />
+            <SpecifyingAFallbackDefaultValue />
         </>
     );
 };
@@ -37,7 +38,7 @@ const Button = ({ children }: { children: React.ReactNode }) => {
     const theme = useContext(ThemeContext)
     const className = 'button-' + theme
     return (
-        <button className={className} style={{marginLeft: 8}}>
+        <button className={className} style={{ marginLeft: 8 }}>
             {children}
         </button>
     )
@@ -114,6 +115,62 @@ const UpdatingDataPassedViaContext = () => {
         <>
             <h3>Updating Data Passed Via Context</h3>
             <ContextWithProp />
+        </>
+    );
+};
+
+const ThemeWithDefaultValue = createContext<{ theme: 'light' | 'dark'; toggleTheme: () => void }>({ theme: 'light', toggleTheme: () => { } })
+
+const PanelWithDefaultValue = ({ title, children }: { title: string; children: React.ReactNode }) => {
+    const { theme } = useContext(ThemeWithDefaultValue)
+
+    const className = 'panel-' + theme
+    return (
+        <section className={className}>
+            <h1>{title}</h1>
+            {children}
+        </section>
+    )
+}
+
+const FormWithDefaultValue = () => {
+    const { theme, toggleTheme } = useContext(ThemeWithDefaultValue)
+
+    return (
+        <>
+            <PanelWithDefaultValue title='Welcome'>
+                <Button>Sign up</Button>
+                <Button>Log in</Button>
+            </PanelWithDefaultValue>
+            <label>
+                <input
+                    type='checkbox'
+                    checked={theme === 'dark'}
+                    onChange={() => toggleTheme()}
+                />
+                Use dark mode
+            </label>
+        </>
+    )
+}
+
+const ContextWithDefaultValue = () => {
+    const [theme, setTheme] = useState<'light' | 'dark'>('light')
+
+    const toggleTheme = () => setTheme(t => t === 'light' ? "dark" : 'light')
+
+    return (
+        <ThemeWithDefaultValue value={{ theme, toggleTheme }}>
+            <FormWithDefaultValue />
+        </ThemeWithDefaultValue >
+    );
+};
+
+const SpecifyingAFallbackDefaultValue = () => {
+    return (
+        <>
+            <h3>Specifying a fallback default value</h3>
+            <ContextWithDefaultValue />
         </>
     );
 };
