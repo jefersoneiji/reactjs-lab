@@ -8,6 +8,7 @@ export const UseContextLab = () => {
             <PassingDataDeeplyIntoTheTree />
             <UpdatingDataPassedViaContext />
             <SpecifyingAFallbackDefaultValue />
+            <OverridingContextForAPartOfTheTree />
         </>
     );
 };
@@ -171,6 +172,37 @@ const SpecifyingAFallbackDefaultValue = () => {
         <>
             <h3>Specifying a fallback default value</h3>
             <ContextWithDefaultValue />
+        </>
+    );
+};
+
+const Footer = () => {
+    return (
+        <footer>
+            <Button>Settings</Button>
+        </footer>
+    )
+}
+
+const ContextWithOverride = () => {
+    return (
+        <ThemeContext value="dark">
+            <Panel title="Welcome">
+                <Button>Sign Up</Button>
+                <Button>Log In</Button>
+                <hr />
+                <ThemeContext value='light'>
+                    <Footer />
+                </ThemeContext>
+            </Panel>
+        </ThemeContext>
+    )
+}
+const OverridingContextForAPartOfTheTree = () => {
+    return (
+        <>
+            <h3>Overriding context for a part of the tree</h3>
+            <ContextWithOverride />
         </>
     );
 };
