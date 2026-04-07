@@ -10,6 +10,7 @@ import { UseCallbackLab } from './hooks/use-callback';
 import { ActivityLab } from './components/activity';
 import { ProfilerLab } from './components/profiler';
 import { SuspenseLab } from './components/suspense';
+import { UseContextLab } from './hooks/use-context';
 import { UseEffectLab } from './hooks/use-effect';
 import { UseReducer } from './hooks/use-reducer';
 import { UseMemoLab } from './hooks/use-memo';
@@ -30,6 +31,7 @@ function App() {
       <SuspenseLab />
       <UseDebugLab />
       <UseEffectLab />
+      <UseContextLab />
       <UseCallbackLab />
       <UseEffectEvenLab />
       <UseOptimisticLab />
