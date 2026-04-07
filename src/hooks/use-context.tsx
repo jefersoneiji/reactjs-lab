@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type SetStateAction } from "react";
 import './use-context.css'
 
 export const UseContextLab = () => {
@@ -9,6 +9,7 @@ export const UseContextLab = () => {
             <UpdatingDataPassedViaContext />
             <SpecifyingAFallbackDefaultValue />
             <OverridingContextForAPartOfTheTree />
+            <OptimizingReRendersWhenPassingObjectsAndFunctions />
         </>
     );
 };
@@ -198,6 +199,7 @@ const ContextWithOverride = () => {
         </ThemeContext>
     )
 }
+
 const OverridingContextForAPartOfTheTree = () => {
     return (
         <>
@@ -206,3 +208,47 @@ const OverridingContextForAPartOfTheTree = () => {
         </>
     );
 };
+
+
+const AuthContext = createContext<{ currentUser: null | string; login: (response: { user: SetStateAction<null | string>; }) => void } | null>(null)
+
+const LoginPage = () => {
+    const { login, currentUser } = useContext(AuthContext)!
+
+    return (
+        <div>
+            <h3>Second Life</h3>
+            <p>{currentUser ? 'User logged is: '.concat(currentUser) : 'You\'re unlogged.'}</p>
+            {!currentUser && <button onClick={() => login({ user: 'John' })}>Click to log in</button>}
+            {currentUser && <button onClick={() => login({ user: null })}>Click to log out</button>}
+        </div>
+    )
+}
+
+const AuthApp = () => {
+    const [currentUser, setCurrentUser] = useState<null | string>(null)
+
+    const login = useCallback((response: { user: SetStateAction<null | string>; }) => {
+        setCurrentUser(response.user)
+    }, [])
+
+    const contextValue = useMemo(() => ({
+        currentUser,
+        login
+    }), [currentUser, login])
+
+    return (
+        <AuthContext value={contextValue}>
+            <LoginPage />
+        </AuthContext>
+    )
+}
+const OptimizingReRendersWhenPassingObjectsAndFunctions = () => {
+    return (
+        <>
+            <h3>Optimizing re-renders when passing objects and functions</h3>
+            <AuthApp />
+        </>
+    );
+};
+
