@@ -6,6 +6,7 @@ export const UseStateLab = () => {
             <h2>Use State Lab</h2>
             <AddingStateToAComponent />
             <UpdatingStateBasedOnPreviousState />
+            <UpdatingObjectsAndArraysInState />
         </>
     );
 };
@@ -57,6 +58,45 @@ const UpdatingStateBasedOnPreviousState = () => {
         <>
             <h3>Updating state based on previous state</h3>
             <AgeApp />
+        </>
+    );
+};
+
+const Form = () => {
+    const [form, setForm] = useState({
+        firstName: "Barbara",
+        lastName: 'Hepworth',
+        'email': 'bhepworth@sculpture.com'
+    })
+
+    return (
+        <>
+            <label>
+                First Name:
+                <input value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })} />
+            </label>
+            <label>
+                Last Name:
+                <input value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })} />
+            </label>
+            <label>
+                Email:
+                <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+            </label>
+            <p>
+                {form.firstName}{' '}
+                {form.lastName}{' '}
+                ({form.email}){' '}
+            </p>    
+        </>
+    )
+}
+
+const UpdatingObjectsAndArraysInState = () => {
+    return (
+        <>
+            <h3>Updating objects and arrays in state</h3>
+            <Form />
         </>
     );
 };
