@@ -6,7 +6,9 @@ export const UseStateLab = () => {
             <h2>Use State Lab</h2>
             <AddingStateToAComponent />
             <UpdatingStateBasedOnPreviousState />
+            <UpdatingObjectsAndArraysInState />
             <AvoidingRecreatingTheInitialState />
+            <ResettingStateWithAKey />
         </>
     );
 };
@@ -66,7 +68,7 @@ const Form = () => {
     const [form, setForm] = useState({
         firstName: "Barbara",
         lastName: 'Hepworth',
-        'email': 'bhepworth@sculpture.com'
+        email: 'bhepworth@sculpture.com'
     })
 
     return (
@@ -92,6 +94,14 @@ const Form = () => {
     )
 }
 
+const UpdatingObjectsAndArraysInState = () => {
+    return (
+        <>
+            <h3>Updating objects and arrays in state</h3>
+            <Form />
+        </>
+    );
+};
 
 const createInitialTodos = () => {
     const initialTodos = []
@@ -132,8 +142,41 @@ const TodosApp = () => {
 const AvoidingRecreatingTheInitialState = () => {
     return (
         <>
-            <h3>Updating objects and arrays in state</h3>
+            <h3>Avoiding recreating the initial state</h3>
             <TodosApp />
+        </>
+    );
+};
+
+const ResetForm = () => {
+    const [name, setName] = useState('John')
+
+    return (
+        <>
+            <input value={name} onChange={e => setName(e.target.value)} />
+            <p>Hello, {name}.</p>
+        </>
+    )
+}
+
+const ResettingState = () => {
+    const [version, setVersion] = useState(0)
+
+    const handleReset = () => setVersion(v => v + 1)
+
+    return (
+        <>
+            <button onClick={handleReset}>Reset</button>
+            <ResetForm key={version} />
+        </>
+    )
+}
+
+const ResettingStateWithAKey = () => {
+    return (
+        <>
+            <h3>Resetting state with a key</h3>
+            <ResettingState />
         </>
     );
 };
