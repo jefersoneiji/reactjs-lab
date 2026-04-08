@@ -12,20 +12,20 @@ import { ProfilerLab } from './components/profiler';
 import { SuspenseLab } from './components/suspense';
 import { UseContextLab } from './hooks/use-context';
 import { UseEffectLab } from './hooks/use-effect';
+import {  UseStateLab } from './hooks/use-state';
 import { UseReducer } from './hooks/use-reducer';
 import { UseMemoLab } from './hooks/use-memo';
-import { UseState } from './hooks/use-state';
 import { UseRefLab } from './hooks/use-ref';
 import { UseIdLab } from './hooks/user-id';
 
 function App() {
   return (
     <>
-      <UseState />
       <UseIdLab />
       <UseRefLab />
       <UseMemoLab />
       <UseReducer />
+      <UseStateLab />
       <ProfilerLab />
       <ActivityLab />
       <SuspenseLab />
