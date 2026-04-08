@@ -9,6 +9,7 @@ export const UseStateLab = () => {
             <UpdatingObjectsAndArraysInState />
             <AvoidingRecreatingTheInitialState />
             <ResettingStateWithAKey />
+            <StoringInformationFromPreviousRenders />
         </>
     );
 };
@@ -177,6 +178,46 @@ const ResettingStateWithAKey = () => {
         <>
             <h3>Resetting state with a key</h3>
             <ResettingState />
+        </>
+    );
+};
+
+const CountLabel = ({ count }: { count: number }) => {
+    const [prevCount, setPrevCount] = useState(count)
+    const [trend, setTrend] = useState<string | null>(null)
+
+    if (prevCount !== count) {
+        setPrevCount(count)
+        setTrend(count > prevCount ? 'increasing' : 'decreasing')
+    }
+    return (
+        <>
+            <h1>{count}</h1>
+            {trend && <p>The count is {trend}</p>}
+        </>
+    )
+}
+
+const StoringApp = () => {
+    const [count, setCount] = useState(0)
+    return (
+        <>
+            <button onClick={() => setCount(count + 1)}>
+                Increment
+            </button>
+            <button onClick={() => setCount(count - 1)}>
+                Decrement
+            </button>
+            <CountLabel count={count} />
+        </>
+    )
+}
+
+const StoringInformationFromPreviousRenders = () => {
+    return (
+        <>
+            <h3>Storing information from previous renders</h3>
+            <StoringApp />
         </>
     );
 };
